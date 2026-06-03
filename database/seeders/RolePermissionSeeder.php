@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+use Src\Identity\Domain\Enums\UserRole;
+
+class RolePermissionSeeder extends Seeder
+{
+    public function run(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $modules = ['room', 'tenant', 'lease', 'invoice', 'payment', 'expense', 'report', 'setting'];
+        $abilities = ['viewAny', 'view', 'create', 'update', 'delete'];
+
+        foreach ($modules as $module) {
+            foreach ($abilities as $ability) {
+                Permission::findOrCreate("{$module}.{$ability}");
+            }
+        }
+
+        $superAdmin = Role::findOrCreate(UserRole::SuperAdmin->value);
+        $owner = Role::findOrCreate(UserRole::Owner->value);
+        $admin = Role::findOrCreate(UserRole::Admin->value);
+
+        // Super Admin: everything (handled by Gate::before too).
+        $superAdmin->syncPermissions(Permission::all());
+
+        // Owner: read-only access to all data + reports.
+        $owner->syncPermissions(
+            Permission::whereIn('name', array_map(
+                fn ($m) => "$m.viewAny",
+                $modules
+            ))->orWhere('name', 'like', '%.view')->get()
+        );
+
+        // Admin: full operational management except settings.
+        $admin->syncPermissions(
+            Permission::where('name', 'not like', 'setting.%')->get()
+        );
+    }
+}

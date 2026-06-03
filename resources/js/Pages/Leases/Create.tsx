@@ -1,0 +1,68 @@
+import { Head, Link, useForm } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Button, Card, Field, Input, PageHeader, Select, Textarea } from '@/Components/ui';
+import { rupiah } from '@/lib/format';
+import type { Option } from '@/types';
+import { FormEvent } from 'react';
+
+interface RoomOpt { id: number; room_number: string; price: string; }
+interface TenantOpt { id: number; name: string; nik: string; }
+
+export default function Create({ rooms, tenants, durations }: { rooms: RoomOpt[]; tenants: TenantOpt[]; durations: Option[] }) {
+    const { data, setData, post, processing, errors } = useForm({
+        room_id: '', tenant_id: '', start_date: new Date().toISOString().slice(0, 10),
+        duration: durations[0]?.value ?? 'monthly', monthly_price: '', deposit: '', notes: '', generate_invoice: true,
+    });
+
+    const onRoom = (id: string) => {
+        const room = rooms.find((r) => String(r.id) === id);
+        setData((d) => ({ ...d, room_id: id, monthly_price: room?.price ?? d.monthly_price }));
+    };
+
+    const submit = (e: FormEvent) => { e.preventDefault(); post('/leases'); };
+
+    return (
+        <AuthenticatedLayout>
+            <Head title="Buat Kontrak" />
+            <PageHeader title="Buat Kontrak" action={<Link href="/leases" className="text-sm text-brand-600 hover:underline">Kembali</Link>} />
+            <Card className="max-w-3xl p-6">
+                <form onSubmit={submit} className="space-y-5">
+                    <div className="grid gap-5 sm:grid-cols-2">
+                        <Field label="Kamar (kosong)" error={errors.room_id}>
+                            <Select value={data.room_id} onChange={(e) => onRoom(e.target.value)}>
+                                <option value="">Pilih kamar…</option>
+                                {rooms.map((r) => <option key={r.id} value={r.id}>{r.room_number} — {rupiah(r.price)}</option>)}
+                            </Select>
+                        </Field>
+                        <Field label="Penghuni" error={errors.tenant_id}>
+                            <Select value={data.tenant_id} onChange={(e) => setData('tenant_id', e.target.value)}>
+                                <option value="">Pilih penghuni…</option>
+                                {tenants.map((t) => <option key={t.id} value={t.id}>{t.name} ({t.nik})</option>)}
+                            </Select>
+                        </Field>
+                        <Field label="Tanggal Mulai" error={errors.start_date}>
+                            <Input type="date" value={data.start_date} onChange={(e) => setData('start_date', e.target.value)} />
+                        </Field>
+                        <Field label="Durasi" error={errors.duration}>
+                            <Select value={data.duration} onChange={(e) => setData('duration', e.target.value)}>
+                                {durations.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+                            </Select>
+                        </Field>
+                        <Field label="Harga / bulan" error={errors.monthly_price}>
+                            <Input type="number" value={data.monthly_price} onChange={(e) => setData('monthly_price', e.target.value)} />
+                        </Field>
+                        <Field label="Deposit" error={errors.deposit}>
+                            <Input type="number" value={data.deposit} onChange={(e) => setData('deposit', e.target.value)} />
+                        </Field>
+                    </div>
+                    <Field label="Catatan" error={errors.notes}><Textarea rows={2} value={data.notes} onChange={(e) => setData('notes', e.target.value)} /></Field>
+                    <label className="flex items-center gap-2 text-sm text-slate-600">
+                        <input type="checkbox" checked={data.generate_invoice} onChange={(e) => setData('generate_invoice', e.target.checked)} />
+                        Buat tagihan pertama otomatis
+                    </label>
+                    <Button type="submit" disabled={processing}>Simpan Kontrak</Button>
+                </form>
+            </Card>
+        </AuthenticatedLayout>
+    );
+}
