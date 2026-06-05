@@ -33,6 +33,7 @@ final readonly class DashboardService
             'receivables' => (float) $this->invoices->outstandingTotal(),
             'income_this_month' => $this->reports->income($now->startOfMonth(), $now->endOfMonth()),
             'income_this_year' => $this->reports->income($now->startOfYear(), $now->endOfYear()),
+            'expense_this_month' => $this->reports->expense($now->startOfMonth(), $now->endOfMonth()),
         ];
     }
 }

@@ -21,6 +21,9 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
         router.get('/rooms', next, { preserveState: true, replace: true });
     };
 
+    const label = (room: Room) => types.find((t) => t.value === room.type)?.label ?? room.type;
+    const statusLabel = (room: Room) => statuses.find((s) => s.value === room.status)?.label ?? room.status;
+
     return (
         <AuthenticatedLayout>
             <Head title="Kamar" />
@@ -52,37 +55,53 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
                 {rooms.data.length === 0 ? (
                     <EmptyState message="Belum ada kamar." />
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-                                <tr>
-                                    <th className="px-4 py-3">Nomor</th>
-                                    <th className="px-4 py-3">Tipe</th>
-                                    <th className="px-4 py-3">Harga</th>
-                                    <th className="px-4 py-3">Status</th>
-                                    <th className="px-4 py-3">Fasilitas</th>
-                                    <th className="px-4 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {rooms.data.map((room) => {
-                                    const st = statuses.find((s) => s.value === room.status);
-                                    return (
+                    <>
+                        {/* Mobile: kartu */}
+                        <ul className="divide-y divide-slate-100 lg:hidden">
+                            {rooms.data.map((room) => (
+                                <li key={room.id}>
+                                    <Link href={`/rooms/${room.id}/edit`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
+                                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">{room.room_number}</div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate font-semibold text-slate-800">Kamar {room.room_number} · {label(room)}</p>
+                                            <p className="truncate text-sm text-slate-500">{rupiah(room.price)}/bln</p>
+                                        </div>
+                                        <Badge status={room.status} label={statusLabel(room)} />
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* Desktop: tabel */}
+                        <div className="hidden overflow-x-auto lg:block">
+                            <table className="w-full text-sm">
+                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
+                                    <tr>
+                                        <th className="px-4 py-3">Nomor</th>
+                                        <th className="px-4 py-3">Tipe</th>
+                                        <th className="px-4 py-3">Harga</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3">Fasilitas</th>
+                                        <th className="px-4 py-3"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {rooms.data.map((room) => (
                                         <tr key={room.id} className="hover:bg-slate-50">
                                             <td className="px-4 py-3 font-semibold text-slate-800">{room.room_number}</td>
-                                            <td className="px-4 py-3 capitalize">{types.find((t) => t.value === room.type)?.label}</td>
+                                            <td className="px-4 py-3 capitalize">{label(room)}</td>
                                             <td className="px-4 py-3">{rupiah(room.price)}</td>
-                                            <td className="px-4 py-3"><Badge status={room.status} label={st?.label ?? room.status} /></td>
+                                            <td className="px-4 py-3"><Badge status={room.status} label={statusLabel(room)} /></td>
                                             <td className="px-4 py-3 text-slate-500">{(room.facilities ?? []).slice(0, 3).join(', ')}</td>
                                             <td className="px-4 py-3 text-right">
                                                 <Link href={`/rooms/${room.id}/edit`} className="text-brand-600 hover:underline">Edit</Link>
                                             </td>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
                 <Pagination paginator={rooms} />
             </Card>
