@@ -2,7 +2,7 @@
 
 Aplikasi web manajemen kos: kamar, penghuni, kontrak, tagihan, pembayaran, reminder jatuh tempo, pengeluaran, dan laporan.
 
-**Stack:** Laravel 13 · PHP 8.4 · Inertia 2 · React 19 · TypeScript · Tailwind CSS v4 · PostgreSQL 17 · Redis
+**Stack:** Laravel 13 · PHP 8.4 (ext-bcmath) · Inertia 3 · React 19 · TypeScript · Tailwind CSS v4 · PostgreSQL 17 · Redis
 **Arsitektur:** Clean Architecture + DDD (per-context `src/`) · Repository · Service · Action · SOLID.
 
 ---
@@ -31,7 +31,7 @@ Repository di-bind di `App\Providers\RepositoryServiceProvider`.
 
 ## Setup
 
-Prasyarat: PHP 8.4, Composer, Node 20+, PostgreSQL 17, Redis.
+Prasyarat: PHP 8.4 (dengan ekstensi `bcmath`), Composer, Node 20+, PostgreSQL 17, Redis.
 
 ```bash
 composer install
@@ -116,6 +116,6 @@ php artisan test
 
 ## Catatan Versi
 
-- Inertia adapter di-pin `^2.0` / `@inertiajs/react ^2.0` (Deferred Props tersedia di v2). Jika v3 sudah rilis, naikkan versi di `composer.json` & `package.json`.
+- Inertia adapter di-pin `^3.0` / `@inertiajs/react ^3.0` (Deferred Props tetap tersedia). Stack disetel agar kompatibel Laravel 13: `spatie/laravel-permission ^8.0`, `laravel/tinker ^3.0`, `pestphp/pest ^4.0`. Pada v3, adapter tidak lagi membundel axios.
 - Config bawaan Laravel (cache/session/queue/mail/filesystems/logging) memakai default framework; publish bila perlu kustomisasi: `php artisan config:publish`.
 - Config Spatie Permission memakai default package; publish bila perlu: `php artisan vendor:publish --tag=permission-config`.
