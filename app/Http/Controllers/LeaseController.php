@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EndLeaseRequest;
 use App\Http\Requests\StoreLeaseRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Src\Lease\Application\Actions\CreateLeaseAction;
 use Src\Lease\Application\Actions\EndLeaseAction;
+use Src\Lease\Domain\Data\LeaseCheckoutData;
 use Src\Lease\Domain\Data\LeaseData;
 use Src\Lease\Domain\Enums\LeaseDuration;
 use Src\Lease\Domain\Enums\LeaseStatus;
@@ -68,13 +70,23 @@ class LeaseController extends Controller
     {
         $this->authorize('view', $lease);
 
-        return Inertia::render('Leases/Show', ['lease' => $this->leases->find($lease->id)]);
+        $lease = $this->leases->find($lease->id);
+
+        return Inertia::render('Leases/Show', [
+            'lease' => $lease,
+            'outstanding' => $lease->outstandingTotal(),
+        ]);
     }
 
-    public function end(Lease $lease, EndLeaseAction $action): RedirectResponse
+    public function end(EndLeaseRequest $request, Lease $lease, EndLeaseAction $action): RedirectResponse
     {
         $this->authorize('update', $lease);
-        $action->execute($lease);
+
+        try {
+            $action->execute($lease, LeaseCheckoutData::fromArray($request->validated()));
+        } catch (Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return redirect()->route('leases.index')->with('success', 'Kontrak diakhiri & kamar dikosongkan.');
     }

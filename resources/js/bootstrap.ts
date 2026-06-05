@@ -1,10 +1,3 @@
-import axios from 'axios';
-
-declare global {
-    interface Window {
-        axios: typeof axios;
-    }
-}
-
-window.axios = axios;
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+// Inertia v3 menangani header & request XHR-nya sendiri (tanpa axios).
+// Berkas ini sengaja dibiarkan minim sebagai titik pasang inisialisasi global.
+export {};

@@ -19,7 +19,7 @@ const NAV = [
 ];
 
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
-    const { auth, flash, url } = usePage<PageProps>().props as PageProps & { url: string };
+    const { auth, flash } = usePage<PageProps>().props;
     const currentUrl = usePage().url;
     const [open, setOpen] = useState(false);
 

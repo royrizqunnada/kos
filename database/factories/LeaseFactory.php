@@ -34,4 +34,14 @@ class LeaseFactory extends Factory
             'status' => LeaseStatus::Active,
         ];
     }
+
+    public function ended(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => LeaseStatus::Ended,
+            'ended_at' => fake()->dateTimeBetween('-1 month', 'now'),
+            'deposit_refunded' => $attributes['deposit'] ?? 0,
+            'deposit_deduction' => 0,
+        ]);
+    }
 }

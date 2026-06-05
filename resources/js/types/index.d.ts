@@ -58,10 +58,15 @@ export interface Lease {
     tenant_id: number;
     start_date: string;
     end_date: string;
+    ended_at: string | null;
     duration: string;
     monthly_price: string;
     deposit: string;
+    deposit_refunded: string;
+    deposit_deduction: string;
     status: string;
+    notes: string | null;
+    checkout_notes: string | null;
     room?: Room;
     tenant?: Tenant;
     invoices?: Invoice[];
