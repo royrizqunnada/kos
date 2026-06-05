@@ -8,6 +8,7 @@ enum RoomStatus: string
 {
     case Available = 'available';
     case Occupied = 'occupied';
+    case Booking = 'booking';
     case Maintenance = 'maintenance';
 
     public function label(): string
@@ -15,6 +16,7 @@ enum RoomStatus: string
         return match ($this) {
             self::Available => 'Kosong',
             self::Occupied => 'Terisi',
+            self::Booking => 'Booking',
             self::Maintenance => 'Maintenance',
         };
     }

@@ -6,16 +6,18 @@ namespace Src\Room\Domain\Enums;
 
 enum RoomType: string
 {
-    case Standard = 'standard';
-    case Deluxe = 'deluxe';
-    case Suite = 'suite';
+    case A = 'a';
+    case B = 'b';
+    case C = 'c';
+    case D = 'd';
 
     public function label(): string
     {
         return match ($this) {
-            self::Standard => 'Standard',
-            self::Deluxe => 'Deluxe',
-            self::Suite => 'Suite',
+            self::A => 'Tipe A',
+            self::B => 'Tipe B',
+            self::C => 'Tipe C',
+            self::D => 'Tipe D',
         };
     }
 }

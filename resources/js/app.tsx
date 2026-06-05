@@ -1,6 +1,12 @@
 import './bootstrap';
 import '../css/app.css';
 
+// Terapkan tema (dark/light) sedini mungkin agar tidak ada "flash".
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+}
+
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ComponentType } from 'react';
@@ -18,5 +24,5 @@ createInertiaApp({
     setup({ el, App, props }) {
         createRoot(el).render(<App {...props} />);
     },
-    progress: { color: '#059669' },
+    progress: { color: '#2563eb' },
 });

@@ -11,10 +11,10 @@ interface Summary {
 }
 interface Serie { month: string; income: number; expense: number; }
 
-function Metric({ label, value, tone = 'text-slate-900' }: { label: string; value: string; tone?: string }) {
+function Metric({ label, value, tone = 'text-slate-900 dark:text-white' }: { label: string; value: string; tone?: string }) {
     return (
         <Card className="p-5">
-            <p className="text-sm text-slate-500">{label}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
             <p className={`mt-1 text-xl font-bold ${tone}`}>{value}</p>
         </Card>
     );
@@ -35,11 +35,11 @@ export default function Index({ summary, filters }: { summary: Summary; filters:
 
             <Card className="mb-6 flex flex-wrap items-end gap-4 p-4">
                 <label className="text-sm">
-                    <span className="mb-1 block text-slate-500">Dari</span>
+                    <span className="mb-1 block text-slate-500 dark:text-slate-400">Dari</span>
                     <Input type="date" value={range.from} onChange={(e) => apply({ from: e.target.value })} />
                 </label>
                 <label className="text-sm">
-                    <span className="mb-1 block text-slate-500">Sampai</span>
+                    <span className="mb-1 block text-slate-500 dark:text-slate-400">Sampai</span>
                     <Input type="date" value={range.to} onChange={(e) => apply({ to: e.target.value })} />
                 </label>
             </Card>
@@ -56,7 +56,7 @@ export default function Index({ summary, filters }: { summary: Summary; filters:
             </div>
 
             <Card className="mt-6 p-5">
-                <h2 className="mb-4 text-sm font-semibold text-slate-700">Tren Tahunan</h2>
+                <h2 className="mb-4 text-sm font-semibold text-slate-700 dark:text-slate-200">Tren Tahunan</h2>
                 <Deferred data="series" fallback={<div className="py-10 text-center text-sm text-slate-400">Memuat…</div>}>
                     <Chart />
                 </Deferred>

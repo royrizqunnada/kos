@@ -19,22 +19,24 @@ export default function Index({ invoices, filters, statuses, outstandingTotal }:
                 action={<Button onClick={() => router.post('/invoices/generate')}><RefreshCw size={16} /> Generate Bulan Ini</Button>}
             />
             <Card>
-                <div className="border-b border-slate-100 p-4">
+                <div className="border-b border-slate-100 p-4 dark:border-slate-800">
                     <Select value={filters.status ?? ''} onChange={(e) => router.get('/invoices', { status: e.target.value }, { preserveState: true, replace: true })} className="max-w-44">
                         <option value="">Semua Status</option>
                         {statuses.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                     </Select>
                 </div>
-                {invoices.data.length === 0 ? <EmptyState message="Belum ada tagihan." /> : (
+                {invoices.data.length === 0 ? (
+                    <EmptyState title="Belum ada tagihan" message="Tagihan akan muncul di sini. Buat kontrak atau klik Generate Bulan Ini." />
+                ) : (
                     <>
                         {/* Mobile: kartu */}
-                        <ul className="divide-y divide-slate-100 lg:hidden">
+                        <ul className="divide-y divide-slate-100 lg:hidden dark:divide-slate-800">
                             {invoices.data.map((inv) => (
                                 <li key={inv.id}>
-                                    <Link href={`/invoices/${inv.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
+                                    <Link href={`/invoices/${inv.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50 dark:active:bg-slate-800/50">
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-semibold text-slate-800">{inv.invoice_number} · {inv.lease?.tenant?.name}</p>
-                                            <p className="truncate text-sm text-slate-500">Jatuh tempo {tanggal(inv.due_date)} · {rupiah(inv.amount)}</p>
+                                            <p className="truncate font-semibold text-slate-800 dark:text-slate-100">{inv.invoice_number} · {inv.lease?.tenant?.name}</p>
+                                            <p className="truncate text-sm text-slate-500 dark:text-slate-400">Jatuh tempo {tanggal(inv.due_date)} · {rupiah(inv.amount)}</p>
                                         </div>
                                         <Badge status={inv.status} label={statusLabel(inv)} />
                                     </Link>
@@ -45,19 +47,19 @@ export default function Index({ invoices, filters, statuses, outstandingTotal }:
                         {/* Desktop: tabel */}
                         <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full text-sm">
-                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
+                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
                                     <tr><th className="px-4 py-3">No. Invoice</th><th className="px-4 py-3">Penghuni</th><th className="px-4 py-3">Jatuh Tempo</th><th className="px-4 py-3">Nominal</th><th className="px-4 py-3">Dibayar</th><th className="px-4 py-3">Status</th><th className="px-4 py-3"></th></tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {invoices.data.map((inv) => (
-                                        <tr key={inv.id} className="hover:bg-slate-50">
-                                            <td className="px-4 py-3 font-mono text-xs font-semibold text-slate-800">{inv.invoice_number}</td>
-                                            <td className="px-4 py-3">{inv.lease?.tenant?.name}</td>
-                                            <td className="px-4 py-3 text-slate-500">{tanggal(inv.due_date)}</td>
-                                            <td className="px-4 py-3">{rupiah(inv.amount)}</td>
-                                            <td className="px-4 py-3 text-slate-500">{rupiah(inv.paid_amount)}</td>
+                                        <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                            <td className="px-4 py-3 font-mono text-xs font-semibold text-slate-800 dark:text-slate-100">{inv.invoice_number}</td>
+                                            <td className="px-4 py-3 dark:text-slate-300">{inv.lease?.tenant?.name}</td>
+                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{tanggal(inv.due_date)}</td>
+                                            <td className="px-4 py-3 dark:text-slate-300">{rupiah(inv.amount)}</td>
+                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{rupiah(inv.paid_amount)}</td>
                                             <td className="px-4 py-3"><Badge status={inv.status} label={statusLabel(inv)} /></td>
-                                            <td className="px-4 py-3 text-right"><Link href={`/invoices/${inv.id}`} className="text-brand-600 hover:underline">Detail</Link></td>
+                                            <td className="px-4 py-3 text-right"><Link href={`/invoices/${inv.id}`} className="text-brand-600 hover:underline dark:text-brand-400">Detail</Link></td>
                                         </tr>
                                     ))}
                                 </tbody>
