@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ButtonHTMLAttributes, InputHTMLAttributes, SelectHTMLAttributes, ReactNode, TextareaHTMLAttributes, useState } from 'react';
 import { Moon, Sun, Inbox } from 'lucide-react';
 import { statusColor } from '@/lib/format';
@@ -90,6 +90,29 @@ export function EmptyState({ message, title, icon: Icon = Inbox, action }: { mes
 
 export function Skeleton({ className = '' }: { className?: string }) {
     return <div className={`animate-pulse rounded-xl bg-slate-200/80 dark:bg-slate-800 ${className}`} />;
+}
+
+/** Sub-navigasi pill antar-halaman terkait (mis. Kamar | Penghuni). */
+export function Segmented({ items }: { items: { label: string; href: string }[] }) {
+    const url = usePage().url;
+    return (
+        <div className="mb-5 inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+            {items.map((it) => {
+                const active = url === it.href || url.startsWith(it.href + '?') || (it.href !== '/' && url.startsWith(it.href + '/'));
+                return (
+                    <Link
+                        key={it.href}
+                        href={it.href}
+                        className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition ${
+                            active ? 'bg-white text-brand-700 shadow-sm dark:bg-slate-900 dark:text-brand-300' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                        }`}
+                    >
+                        {it.label}
+                    </Link>
+                );
+            })}
+        </div>
+    );
 }
 
 export function ThemeToggle({ className = '' }: { className?: string }) {

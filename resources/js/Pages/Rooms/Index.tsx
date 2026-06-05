@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Badge, Button, Card, EmptyState, Input, PageHeader, Pagination, Select } from '@/Components/ui';
+import { Badge, Button, Card, EmptyState, Input, PageHeader, Pagination, Segmented, Select } from '@/Components/ui';
 import { rupiah } from '@/lib/format';
 import type { Option, Paginated, Room } from '@/types';
 import { Plus } from 'lucide-react';
@@ -28,10 +28,11 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
         <AuthenticatedLayout>
             <Head title="Kamar" />
             <PageHeader
-                title="Manajemen Kamar"
-                subtitle="Kelola kamar, harga, status, dan fasilitas"
+                title="Kamar & Penghuni"
+                subtitle={`${rooms.total} kamar terdata`}
                 action={<Link href="/rooms/create"><Button><Plus size={16} /> Tambah Kamar</Button></Link>}
             />
+            <Segmented items={[{ label: 'Kamar', href: '/rooms' }, { label: 'Penghuni', href: '/tenants' }]} />
 
             <Card>
                 <div className="flex flex-wrap gap-3 border-b border-slate-100 p-4 dark:border-slate-800">

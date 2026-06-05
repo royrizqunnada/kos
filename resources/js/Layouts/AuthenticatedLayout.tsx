@@ -19,13 +19,13 @@ const NAV = [
     { name: 'Pengaturan', href: '/settings', icon: Settings },
 ];
 
-// 5 tab utama untuk bottom-navigation di mobile.
+// 5 tab utama untuk bottom-navigation (sesuai PDF: Beranda·Kamar·Tagihan·Laporan·Profil).
 const BOTTOM = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Kamar', href: '/rooms', icon: DoorOpen },
-    { name: 'Penghuni', href: '/tenants', icon: Users },
-    { name: 'Tagihan', href: '/invoices', icon: ReceiptText },
-    { name: 'Laporan', href: '/reports', icon: BarChart3 },
+    { name: 'Beranda', href: '/', icon: LayoutDashboard, match: '/' },
+    { name: 'Kamar', href: '/rooms', icon: DoorOpen, match: '/rooms' },
+    { name: 'Tagihan', href: '/invoices', icon: ReceiptText, match: '/invoices' },
+    { name: 'Laporan', href: '/reports', icon: BarChart3, match: '/reports' },
+    { name: 'Profil', href: '/settings', icon: User, match: '/settings' },
 ];
 
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
@@ -141,7 +141,13 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
             <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-slate-200 bg-white/95 backdrop-blur shadow-[0_-1px_10px_rgba(0,0,0,0.05)] lg:hidden dark:border-slate-800 dark:bg-slate-900/95">
                 {BOTTOM.map((item) => {
                     const Icon = item.icon;
-                    const active = isActive(item.href);
+                    // Kamar mencakup Penghuni & Kontrak; Tagihan mencakup Pembayaran.
+                    const group: Record<string, string[]> = {
+                        '/rooms': ['/rooms', '/tenants', '/leases'],
+                        '/invoices': ['/invoices', '/payments'],
+                    };
+                    const paths = group[item.href] ?? [item.href];
+                    const active = item.href === '/' ? currentUrl === '/' : paths.some((p) => currentUrl.startsWith(p));
                     return (
                         <Link
                             key={item.name}

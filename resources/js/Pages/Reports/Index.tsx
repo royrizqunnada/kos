@@ -1,8 +1,9 @@
 import { Head, router, Deferred } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Card, Input, PageHeader } from '@/Components/ui';
+import { Card, Input, PageHeader, SecondaryButton } from '@/Components/ui';
 import { rupiah } from '@/lib/format';
 import { useState } from 'react';
+import { Download, Printer } from 'lucide-react';
 
 interface Summary {
     income: number; expense: number; profit: number; receivables: number;
@@ -42,6 +43,14 @@ export default function Index({ summary, filters }: { summary: Summary; filters:
                     <span className="mb-1 block text-slate-500 dark:text-slate-400">Sampai</span>
                     <Input type="date" value={range.to} onChange={(e) => apply({ to: e.target.value })} />
                 </label>
+                <div className="ml-auto flex gap-2">
+                    <a href={`/reports/export/csv?from=${range.from}&to=${range.to}`}>
+                        <SecondaryButton type="button"><Download size={16} /> Excel</SecondaryButton>
+                    </a>
+                    <a href={`/reports/print?from=${range.from}&to=${range.to}`} target="_blank" rel="noreferrer">
+                        <SecondaryButton type="button"><Printer size={16} /> PDF</SecondaryButton>
+                    </a>
+                </div>
             </Card>
 
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button, Card, EmptyState, Input, PageHeader, Pagination } from '@/Components/ui';
+import { Button, Card, EmptyState, Input, PageHeader, Pagination, Segmented } from '@/Components/ui';
 import type { Paginated, Tenant } from '@/types';
 import { Plus } from 'lucide-react';
 
@@ -14,10 +14,11 @@ export default function Index({ tenants, filters }: { tenants: Paginated<Tenant>
         <AuthenticatedLayout>
             <Head title="Penghuni" />
             <PageHeader
-                title="Manajemen Penghuni"
+                title="Kamar & Penghuni"
                 subtitle="Data penghuni kos"
                 action={<Link href="/tenants/create"><Button><Plus size={16} /> Tambah Penghuni</Button></Link>}
             />
+            <Segmented items={[{ label: 'Kamar', href: '/rooms' }, { label: 'Penghuni', href: '/tenants' }]} />
             <Card>
                 <div className="border-b border-slate-100 p-4 dark:border-slate-800">
                     <Input

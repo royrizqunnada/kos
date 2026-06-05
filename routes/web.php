@@ -9,6 +9,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TenantController;
@@ -47,6 +48,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
     Route::get('reports', ReportController::class)->name('reports.index');
+    Route::get('reports/export/csv', [ReportExportController::class, 'csv'])->name('reports.csv');
+    Route::get('reports/print', [ReportExportController::class, 'print'])->name('reports.print');
 
     Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');

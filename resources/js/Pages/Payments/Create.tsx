@@ -29,8 +29,8 @@ export default function Create({ invoices, preselect }: { invoices: InvoiceOpt[]
                         </Select>
                     </Field>
                     {selected && (
-                        <div className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                            Sisa tagihan: <span className="font-semibold text-slate-800">{rupiah(selected.outstanding)}</span>
+                        <div className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">
+                            Sisa tagihan: <span className="font-semibold text-slate-800 dark:text-slate-100">{rupiah(selected.outstanding)}</span>
                             <button type="button" onClick={() => setData('amount', String(selected.outstanding))} className="ml-3 text-brand-600 hover:underline">Bayar penuh</button>
                         </div>
                     )}

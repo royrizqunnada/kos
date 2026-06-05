@@ -57,7 +57,7 @@ export default function RoomForm({ room, statuses, types }: { room?: Room; statu
                             type="button"
                             key={f}
                             onClick={() => toggle(f)}
-                            className={`rounded-full border px-3 py-1 text-sm ${selected.includes(f) ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600'}`}
+                            className={`rounded-full border px-3 py-1 text-sm transition ${selected.includes(f) ? 'border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-600/15 dark:text-brand-300' : 'border-slate-300 text-slate-600 dark:border-slate-700 dark:text-slate-300'}`}
                         >
                             {f}
                         </button>

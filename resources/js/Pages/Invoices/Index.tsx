@@ -1,9 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Badge, Button, Card, EmptyState, PageHeader, Pagination, Select } from '@/Components/ui';
+import { Badge, Button, Card, EmptyState, PageHeader, Pagination, Segmented, Select } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
 import type { Invoice, Option, Paginated } from '@/types';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, BellRing } from 'lucide-react';
 
 interface Props { invoices: Paginated<Invoice>; filters: { status?: string }; statuses: Option[]; outstandingTotal: number; }
 
@@ -14,10 +14,11 @@ export default function Index({ invoices, filters, statuses, outstandingTotal }:
         <AuthenticatedLayout>
             <Head title="Tagihan" />
             <PageHeader
-                title="Tagihan"
+                title="Tagihan & Pembayaran"
                 subtitle={`Total piutang berjalan: ${rupiah(outstandingTotal)}`}
-                action={<Button onClick={() => router.post('/invoices/generate')}><RefreshCw size={16} /> Generate Bulan Ini</Button>}
+                action={<Button onClick={() => router.post('/invoices/generate')}><RefreshCw size={16} /> Generate</Button>}
             />
+            <Segmented items={[{ label: 'Tagihan', href: '/invoices' }, { label: 'Pembayaran', href: '/payments' }]} />
             <Card>
                 <div className="border-b border-slate-100 p-4 dark:border-slate-800">
                     <Select value={filters.status ?? ''} onChange={(e) => router.get('/invoices', { status: e.target.value }, { preserveState: true, replace: true })} className="max-w-44">
@@ -68,6 +69,20 @@ export default function Index({ invoices, filters, statuses, outstandingTotal }:
                     </>
                 )}
                 <Pagination paginator={invoices} />
+            </Card>
+
+            {/* Pengingat Otomatis (sesuai PDF) */}
+            <Card className="mt-5 p-5">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-600/15 dark:text-brand-300"><BellRing size={18} /></div>
+                        <div>
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Pengingat Otomatis</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">WhatsApp &amp; Email · terkirim H-7, H-3, H-1, H+1, H+7</p>
+                        </div>
+                    </div>
+                    <Badge status="active" label="Aktif" />
+                </div>
             </Card>
         </AuthenticatedLayout>
     );
