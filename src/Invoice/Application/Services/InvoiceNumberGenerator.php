@@ -13,7 +13,9 @@ final class InvoiceNumberGenerator
     {
         $prefix = 'INV/'.$date->format('Ym').'/';
 
-        $last = Invoice::query()
+        // Sertakan tagihan terarsip (soft-deleted): nomornya masih dipakai unique
+        // constraint di DB, jadi tetap harus dihitung agar tidak bentrok.
+        $last = Invoice::withTrashed()
             ->where('invoice_number', 'like', $prefix.'%')
             ->orderByDesc('invoice_number')
             ->value('invoice_number');
