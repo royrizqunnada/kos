@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Button, Field, Input } from '@/Components/ui';
+import { Button, Field, Input, Logo } from '@/Components/ui';
 import { FormEvent } from 'react';
 
 export default function Login() {
@@ -16,7 +16,7 @@ export default function Login() {
             <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
                 <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
                     <div className="mb-7 flex items-center gap-3">
-                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-600 text-lg font-bold text-white shadow-sm">C</div>
+                        <Logo className="h-12 w-12" />
                         <div>
                             <h1 className="text-xl font-bold text-slate-900">Cozy Corner</h1>
                             <p className="text-xs text-slate-400">Modern Student Living</p>
@@ -35,9 +35,6 @@ export default function Login() {
                         </label>
                         <Button type="submit" disabled={processing} className="w-full">Masuk</Button>
                     </form>
-                    <p className="mt-6 text-center text-xs text-slate-400">
-                        Demo: superadmin@kos.test / password
-                    </p>
                 </div>
             </div>
         </>

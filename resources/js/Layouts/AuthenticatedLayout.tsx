@@ -4,6 +4,7 @@ import {
     LayoutDashboard, DoorOpen, Users, FileSignature, ReceiptText,
     Wallet, TrendingDown, BarChart3, Settings, LogOut, Menu, User,
 } from 'lucide-react';
+import { Logo } from '@/Components/ui';
 import type { PageProps } from '@/types';
 
 const NAV = [
@@ -47,7 +48,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                 }`}
             >
                 <div className="flex h-16 items-center gap-2.5 border-b border-slate-200 px-6">
-                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 font-bold text-white shadow-sm">C</div>
+                    <Logo className="h-9 w-9" />
                     <div className="leading-tight">
                         <span className="block text-base font-bold text-slate-900">Cozy Corner</span>
                         <span className="block text-[10px] uppercase tracking-wide text-slate-400">Student Living</span>

@@ -10,8 +10,8 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: system-ui, "Segoe UI", sans-serif; color: #0f172a; margin: 0; padding: 32px; }
-        .head { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #2563eb; padding-bottom: 16px; }
-        .logo { width: 44px; height: 44px; border-radius: 12px; background: #2563eb; color: #fff; font-weight: 800; font-size: 22px; display: grid; place-items: center; }
+        .head { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #16a34a; padding-bottom: 16px; }
+        .logo { width: 44px; height: 44px; border-radius: 12px; background: #16a34a; color: #fff; font-weight: 800; font-size: 22px; display: grid; place-items: center; }
         h1 { font-size: 18px; margin: 0; }
         .muted { color: #64748b; font-size: 13px; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
@@ -28,7 +28,7 @@
         .bars .bar { width: 14px; border-radius: 3px 3px 0 0; }
         .green { color: #059669; } .red { color: #dc2626; }
         .toolbar { position: fixed; top: 16px; right: 16px; }
-        .btn { background: #2563eb; color: #fff; border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: 13px; cursor: pointer; }
+        .btn { background: #16a34a; color: #fff; border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 600; font-size: 13px; cursor: pointer; }
         @media print { .toolbar { display: none; } body { padding: 0; } }
     </style>
 </head>
@@ -67,7 +67,7 @@
         @foreach ($series as $s)
             <div class="col">
                 <div class="pair">
-                    <div class="bar" style="height: {{ (int) ($s['income'] / $max * 100) }}%; background:#2563eb;" title="Pendapatan {{ $rp($s['income']) }}"></div>
+                    <div class="bar" style="height: {{ (int) ($s['income'] / $max * 100) }}%; background:#16a34a;" title="Pendapatan {{ $rp($s['income']) }}"></div>
                     <div class="bar" style="height: {{ (int) ($s['expense'] / $max * 100) }}%; background:#fca5a5;" title="Pengeluaran {{ $rp($s['expense']) }}"></div>
                 </div>
                 <div class="muted" style="font-size:11px;margin-top:4px">{{ $s['month'] }}</div>

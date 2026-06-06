@@ -7,7 +7,7 @@
     <title inertia>{{ config('app.name', 'Cozy Corner') }}</title>
 
     {{-- PWA --}}
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#16a34a">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">

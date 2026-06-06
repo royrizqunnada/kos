@@ -7,6 +7,20 @@ import type { Paginated } from '@/types';
 const inputBase =
     'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30';
 
+export function Logo({ className = 'h-9 w-9' }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="48" height="48" rx="13" className="fill-brand-600" />
+            {/* daun */}
+            <path d="M19 9c-7.5 5-9.5 14.5-4.2 22.6.9 1.4 3 1.3 3.9-.1C22.8 24 22.8 15.5 19 9Z" fill="#fff" />
+            <path d="M16.6 14.5c1.1 5.6 1.1 10.8 0 16" className="stroke-brand-600" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+            {/* jendela rumah */}
+            <rect x="25.5" y="19.5" width="14" height="14" rx="3" fill="#fff" />
+            <path d="M32.5 19.5v14M25.5 26.5h14" className="stroke-brand-600" strokeWidth="1.7" />
+        </svg>
+    );
+}
+
 export function Button({ className = '', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
     return (
         <button

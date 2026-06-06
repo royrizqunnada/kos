@@ -1,5 +1,5 @@
 // Cozy Corner — service worker (manual, tanpa build plugin).
-const CACHE = 'cozy-v1';
+const CACHE = 'cozy-v2';
 const PRECACHE = ['/offline.html', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
