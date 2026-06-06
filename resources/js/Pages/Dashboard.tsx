@@ -110,11 +110,11 @@ export default function Dashboard({ stats, revenueSeries }: { stats: Stats; reve
                         </div>
                         <div>
                             <p className="text-lg font-bold">{rupiah(stats.expense_this_month)}</p>
-                            <p className="text-xs text-white/70">Pengeluaran</p>
+                            <p className="text-xs text-white/70">Pengeluaran bln ini</p>
                         </div>
                         <div>
                             <p className={`text-lg font-bold ${stats.profit_this_month >= 0 ? 'text-white' : 'text-rose-200'}`}>{rupiah(stats.profit_this_month)}</p>
-                            <p className="text-xs text-white/70">Laba operasional</p>
+                            <p className="text-xs text-white/70">Laba operasional bln ini</p>
                         </div>
                         <div>
                             <p className="text-lg font-bold">{rupiah(stats.receivables)}</p>
