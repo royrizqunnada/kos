@@ -130,9 +130,11 @@ class PaymentController extends Controller
                     'amount' => (float) $payment->invoice?->amount,
                 ],
                 'tenant_name' => $payment->invoice?->lease?->tenant?->name,
+                'tenant_phone' => $payment->invoice?->lease?->tenant?->phone,
                 'room_number' => $payment->invoice?->lease?->room?->room_number,
             ],
-            'kos_name' => config('app.name'),
+            'kos_name' => config('kos.name'),
+            'kos_owner' => config('kos.owner'),
         ]);
     }
 

@@ -1,6 +1,10 @@
 <?php
 
 return [
+    // Identitas kos untuk kwitansi & tagihan.
+    'name' => env('KOS_NAME', 'Cozy Corner Student Living In Semarang'),
+    'owner' => env('KOS_OWNER', 'Febrina Nuke Kardini'),
+
     // Default reminder day-offsets relative to invoice due date.
     'reminder_offsets' => [-7, -3, -1, 1, 7],
 

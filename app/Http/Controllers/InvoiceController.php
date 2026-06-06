@@ -37,6 +37,31 @@ class InvoiceController extends Controller
         return Inertia::render('Invoices/Show', ['invoice' => $this->invoices->find($invoice->id)]);
     }
 
+    public function tagihan(Invoice $invoice): Response
+    {
+        $this->authorize('view', $invoice);
+        $invoice->load(['lease.tenant', 'lease.room']);
+
+        return Inertia::render('Invoices/Tagihan', [
+            'invoice' => [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'period_start' => $invoice->period_start->toDateString(),
+                'period_end' => $invoice->period_end->toDateString(),
+                'due_date' => $invoice->due_date->toDateString(),
+                'amount' => (float) $invoice->amount,
+                'paid_amount' => (float) $invoice->paid_amount,
+                'status' => $invoice->status->value,
+                'status_label' => $invoice->status->label(),
+                'tenant_name' => $invoice->lease?->tenant?->name,
+                'tenant_phone' => $invoice->lease?->tenant?->phone,
+                'room_number' => $invoice->lease?->room?->room_number,
+            ],
+            'kos_name' => config('kos.name'),
+            'kos_owner' => config('kos.owner'),
+        ]);
+    }
+
     public function generate(GenerateDueInvoicesAction $action): RedirectResponse
     {
         $this->authorize('create', Invoice::class);

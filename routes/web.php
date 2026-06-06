@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('leases/{lease}', [LeaseController::class, 'destroy'])->name('leases.destroy');
 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/{invoice}/tagihan', [InvoiceController::class, 'tagihan'])->name('invoices.tagihan');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
     Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');

@@ -28,6 +28,9 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                 action={
                     <div className="flex flex-wrap gap-2">
                         <Link href="/invoices"><SecondaryButton>Kembali</SecondaryButton></Link>
+                        <Link href={`/invoices/${invoice.id}/tagihan`}>
+                            <SecondaryButton className="border-brand-300 text-brand-700 hover:bg-brand-50">🖼️ Tagihan (gambar)</SecondaryButton>
+                        </Link>
                         {hasPhone && invoice.status !== 'paid' && (
                             <a href={waLink(invoice)} target="_blank" rel="noreferrer">
                                 <SecondaryButton className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">📲 Kirim WA</SecondaryButton>
