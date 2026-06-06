@@ -8,6 +8,7 @@ return [
 
     // Halaman profil publik (cozycornerliving.id).
     'profile_domain' => env('PROFILE_DOMAIN', 'cozycornerliving.id'),
+    'apps_url' => env('APPS_URL', 'https://apps.cozycornerliving.id'),
     'phone' => env('KOS_PHONE', '6282323671558'),            // untuk wa.me (tanpa +)
     'phone_display' => env('KOS_PHONE_DISPLAY', '0823-2367-1558'),
     'address_line1' => env('KOS_ADDRESS_1', 'Jl. Klentengsari I No. 27A, RT 06 RW 02'),

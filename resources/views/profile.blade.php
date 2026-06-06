@@ -6,6 +6,32 @@
 <title>{{ $kos['name'] }} Kos Putri — Modern Student Living Semarang</title>
 <meta name="description" content="Kos putri modern dekat UNDIP Tembalang, Semarang. Kamar mandi dalam, AC, WiFi, CCTV 24 jam.">
 <link rel="icon" href="{{ asset('logo.png') }}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ $kos['name'] }} Kos Putri — Modern Student Living Semarang">
+<meta property="og:description" content="Kos putri modern dekat UNDIP Tembalang. Kamar mandi dalam, AC, WiFi, CCTV 24 jam.{{ $totalAvailable > 0 ? ' '.$totalAvailable.' kamar kosong tersedia.' : '' }}">
+<meta property="og:image" content="{{ asset('logo.png') }}">
+<meta property="og:url" content="https://{{ $kos['profile_domain'] }}">
+<meta name="twitter:card" content="summary">
+@php
+  $ld = array_filter([
+    '@context' => 'https://schema.org',
+    '@type' => 'LodgingBusiness',
+    'name' => $kos['name'].' Kos Putri',
+    'description' => 'Kos putri modern dekat UNDIP Tembalang, Semarang. Kamar mandi dalam, AC, WiFi, CCTV 24 jam.',
+    'telephone' => '+'.$kos['phone'],
+    'url' => 'https://'.$kos['profile_domain'],
+    'image' => asset('logo.png'),
+    'address' => [
+      '@type' => 'PostalAddress',
+      'streetAddress' => $kos['address_line1'],
+      'addressLocality' => 'Semarang',
+      'addressRegion' => 'Jawa Tengah',
+      'addressCountry' => 'ID',
+    ],
+    'priceRange' => $priceMin ? ('Rp '.number_format((float) $priceMin, 0, ',', '.').' - Rp '.number_format((float) $priceMax, 0, ',', '.')) : null,
+  ]);
+@endphp
+<script type="application/ld+json">{!! json_encode($ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -118,6 +144,13 @@
   .c-tag{position:absolute;top:16px;left:16px;z-index:5;background:rgba(255,255,255,.2);backdrop-filter:blur(6px);color:#fff;font-size:12px;font-weight:600;padding:6px 13px;border-radius:20px;letter-spacing:.03em;}
   .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1);}
   .reveal.in{opacity:1;transform:none;}
+  .wa-float{position:fixed;right:20px;bottom:20px;z-index:200;width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 10px 30px rgba(37,211,102,.45);transition:.25s;}
+  .wa-float:hover{transform:scale(1.08);}
+  .wa-float svg{width:30px;height:30px;fill:#fff;}
+  .wa-float::after{content:"";position:absolute;inset:0;border-radius:50%;background:#25d366;opacity:.5;animation:waPulse 2.2s infinite;z-index:-1;}
+  @keyframes waPulse{0%{transform:scale(1);opacity:.5;}70%{transform:scale(1.7);opacity:0;}100%{opacity:0;}}
+  .flogin{opacity:.55;font-size:12px;text-decoration:underline;margin-top:8px;}
+  .flogin:hover{opacity:.9;}
 </style>
 </head>
 @php
@@ -282,9 +315,14 @@
       <a href="{{ $kos['instagram'] }}" target="_blank" rel="noreferrer">{{ $kos['instagram_handle'] }}</a>
       <a href="{{ $kos['tiktok'] }}" target="_blank" rel="noreferrer">TikTok</a>
     </div>
+    <a href="{{ rtrim($kos['apps_url'], '/') }}/login" class="flogin">Login Admin</a>
     <div class="copy">© {{ date('Y') }} {{ $kos['name'] }} Kos Putri. Semua hak dilindungi.</div>
   </div>
 </footer>
+
+<a href="{{ $waTanya }}" class="wa-float" target="_blank" rel="noreferrer" aria-label="Chat WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 1.8c2.16 0 4.18.84 5.71 2.37a8.03 8.03 0 0 1 2.37 5.71c0 4.46-3.63 8.09-8.1 8.09-1.52 0-3-.41-4.29-1.18l-.31-.18-3.12.82.83-3.04-.2-.31a8.05 8.05 0 0 1-1.24-4.29c0-4.46 3.63-8.09 8.1-8.09zm-2.4 4.34c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.97 2.63 1.11 2.81c.14.18 1.92 2.93 4.65 4.11.65.28 1.16.45 1.55.58.65.21 1.25.18 1.72.11.52-.08 1.61-.66 1.84-1.29.23-.63.23-1.18.16-1.29-.07-.11-.25-.18-.52-.32-.27-.14-1.61-.79-1.86-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.17-1.34-.8-.71-1.34-1.6-1.5-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.44-.46-.61-.46h-.05z"/></svg>
+</a>
 
 <script>
   const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.15});

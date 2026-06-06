@@ -36,3 +36,14 @@ it('marks a fully occupied type as penuh', function () {
 it('is publicly accessible without login', function () {
     $this->get(profileUrl())->assertOk();
 });
+
+it('includes share meta, structured data, floating WhatsApp & admin login', function () {
+    Room::factory()->create(['type' => RoomType::A->value, 'price' => 1_700_000, 'status' => RoomStatus::Available->value]);
+
+    $this->get(profileUrl())
+        ->assertOk()
+        ->assertSee('og:title', false)              // preview share WhatsApp/sosmed
+        ->assertSee('LodgingBusiness', false)       // structured data buat Google
+        ->assertSee('wa-float', false)              // tombol WA melayang
+        ->assertSee('Login Admin');                 // link ke apps
+});

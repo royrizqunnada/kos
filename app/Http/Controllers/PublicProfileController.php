@@ -38,6 +38,8 @@ class PublicProfileController extends Controller
             'kos' => config('kos'),
             'types' => $types,
             'cheapest' => $cheapest,
+            'priceMin' => $types->min('price'),
+            'priceMax' => $types->max('price'),
             'totalAvailable' => $rooms->filter(fn (Room $r) => $r->status === RoomStatus::Available)->count(),
         ]);
     }
