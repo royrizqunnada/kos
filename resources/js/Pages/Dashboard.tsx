@@ -8,7 +8,8 @@ interface Activity { type: string; title: string; subtitle: string; amount: numb
 interface Stats {
     rooms_total: number; rooms_occupied: number; rooms_available: number; rooms_maintenance: number;
     occupancy_rate: number; active_tenants: number; unpaid_invoices: number; overdue_invoices: number;
-    receivables: number; income_this_month: number; expense_this_month: number;
+    receivables: number; income_this_month: number; income_last_3_months: number; income_this_year: number;
+    current_year: number; expense_this_month: number;
     recent_activity: Activity[];
 }
 
@@ -80,6 +81,10 @@ export default function Dashboard({ stats }: { stats: Stats }) {
                             <p className="text-lg font-bold">{rupiah(stats.expense_this_month)}</p>
                             <p className="text-xs text-white/70">Pengeluaran</p>
                         </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-white/20 pt-3 text-xs text-white/80">
+                        <span>Pendapatan 3 bulan: <b className="text-white">{rupiah(stats.income_last_3_months)}</b></span>
+                        <span>Tahun {stats.current_year}: <b className="text-white">{rupiah(stats.income_this_year)}</b></span>
                     </div>
                 </div>
             </div>

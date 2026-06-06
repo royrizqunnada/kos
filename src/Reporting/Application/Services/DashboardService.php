@@ -36,7 +36,9 @@ final readonly class DashboardService
             'unpaid_invoices' => $this->invoices->unpaidCount(),
             'receivables' => (float) $this->invoices->outstandingTotal(),
             'income_this_month' => $this->reports->income($now->startOfMonth(), $now->endOfMonth()),
+            'income_last_3_months' => $this->reports->income($now->subMonths(2)->startOfMonth(), $now->endOfMonth()),
             'income_this_year' => $this->reports->income($now->startOfYear(), $now->endOfYear()),
+            'current_year' => (int) $now->year,
             'expense_this_month' => $this->reports->expense($now->startOfMonth(), $now->endOfMonth()),
             'overdue_invoices' => Invoice::query()
                 ->whereIn('status', ['unpaid', 'partial', 'overdue'])

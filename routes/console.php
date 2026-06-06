@@ -5,7 +5,17 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Schedule;
 use Src\Invoice\Application\Actions\GenerateDueInvoicesAction;
+use Src\Invoice\Application\Actions\RefreshInvoiceStatusesAction;
+use Src\Lease\Application\Actions\EndExpiredLeasesAction;
 use Src\Reminder\Application\Actions\SendInvoiceRemindersAction;
+
+// Tandai tagihan lewat tempo jadi "Telat" otomatis (tiap dini hari).
+Schedule::call(fn (RefreshInvoiceStatusesAction $action) => $action->execute())
+    ->dailyAt('01:00')->name('refresh-invoice-statuses');
+
+// Akhiri kontrak yang masa berlakunya habis & bebaskan kamar (otomatis).
+Schedule::call(fn (EndExpiredLeasesAction $action) => $action->execute())
+    ->dailyAt('01:10')->name('end-expired-leases');
 
 // Generate this month's invoices for all active leases on the billing day.
 Schedule::call(function (GenerateDueInvoicesAction $action) {
