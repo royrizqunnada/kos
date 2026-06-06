@@ -17,39 +17,45 @@ use Src\Room\Domain\Models\Room;
 final class ReportService
 {
     /**
-     * Pendapatan sesuai masa sewa: jumlah harga sewa bulanan dari setiap kontrak yang
-     * masa sewanya menyentuh tiap bulan dalam rentang. Dihitung langsung dari kontrak
-     * (bukan tagihan), jadi walau penghuni bayar 3 bulan sekaligus, pendapatan tetap
-     * kebaca per bulan sesuai harga sewa — dan tidak meleset gara-gara tagihan telat dibuat.
+     * PENDAPATAN (Revenue Recognition) — alokasi pembayaran per bulan masa sewa.
+     *
+     * Nilai pembayaran yang sudah masuk pada tiap tagihan dialokasikan rata ke setiap
+     * BULAN kalender masa sewa tagihan itu. Bayar 6 bulan di muka (Rp6jt) → diakui
+     * Rp1jt/bulan selama 6 bulan, BUKAN Rp6jt di bulan pembayaran. Total revenue
+     * sepanjang waktu = total kas yang diterima, hanya sebarannya yang per bulan.
      */
     public function income(CarbonImmutable $from, CarbonImmutable $to): float
     {
         $rangeFromMonth = $from->startOfMonth();
         $rangeToMonth = $to->startOfMonth();
 
-        return (float) Lease::query()
-            ->whereIn('status', [LeaseStatus::Active->value, LeaseStatus::Ended->value])
-            ->whereDate('start_date', '<=', $to->toDateString())
-            ->whereDate('end_date', '>=', $from->toDateString())
-            ->get(['monthly_price', 'start_date', 'end_date'])
-            ->sum(function (Lease $lease) use ($rangeFromMonth, $rangeToMonth): float {
-                $monthly = (float) $lease->monthly_price;
+        return (float) Invoice::query()
+            ->where('paid_amount', '>', 0)
+            ->whereDate('period_start', '<=', $to->toDateString())
+            ->whereDate('period_end', '>=', $from->toDateString())
+            ->get(['paid_amount', 'period_start', 'period_end'])
+            ->sum(function (Invoice $invoice) use ($rangeFromMonth, $rangeToMonth): float {
+                $paid = (float) $invoice->paid_amount;
+                $first = $invoice->period_start->startOfMonth();
+                $last = $invoice->period_end->startOfMonth();
 
-                // Hitung berapa bulan masa sewa kontrak ini yang masuk rentang diminta.
-                $first = $lease->start_date->startOfMonth();
-                $last = $lease->end_date->startOfMonth();
-
-                $months = 0;
+                $totalMonths = 0;
+                $monthsInRange = 0;
                 for ($month = $first; $month->lessThanOrEqualTo($last); $month = $month->addMonth()) {
+                    $totalMonths++;
                     if ($month->greaterThanOrEqualTo($rangeFromMonth) && $month->lessThanOrEqualTo($rangeToMonth)) {
-                        $months++;
+                        $monthsInRange++;
                     }
                 }
 
-                return $monthly * $months;
+                return $totalMonths === 0 ? 0.0 : $paid * $monthsInRange / $totalMonths;
             });
     }
 
+    /**
+     * KAS MASUK (Cash Flow) — total pembayaran berdasarkan TANGGAL bayar.
+     * Bayar 6 bulan di muka tercatat penuh di bulan pembayaran.
+     */
     public function paymentIncome(CarbonImmutable $from, CarbonImmutable $to): float
     {
         return (float) Payment::query()

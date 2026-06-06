@@ -11,6 +11,7 @@ interface Stats {
     rooms_total: number; rooms_occupied: number; rooms_available: number; rooms_maintenance: number;
     occupancy_rate: number; active_tenants: number; unpaid_invoices: number; overdue_invoices: number;
     receivables: number; income_this_month: number; income_last_3_months: number; income_this_year: number;
+    cash_this_month: number; cash_this_year: number;
     current_year: number; expense_this_month: number; profit_this_month: number;
     recent_activity: Activity[];
     alerts: { overdue: AlertItem[]; due_soon: AlertItem[]; lease_ending: AlertItem[] };
@@ -100,25 +101,29 @@ export default function Dashboard({ stats, revenueSeries }: { stats: Stats; reve
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 p-6 text-white shadow-lg">
                 <div className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/10" />
                 <div className="relative">
-                    <p className="text-sm text-white/80">Pendapatan bulan ini</p>
+                    <p className="text-sm text-white/80">Pendapatan bulan ini <span className="text-white/50">(sewa per bulan)</span></p>
                     <p className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">{rupiah(stats.income_this_month)}</p>
-                    <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2">
+                    <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-4">
                         <div>
-                            <p className="text-lg font-bold">{rupiah(stats.receivables)}</p>
-                            <p className="text-xs text-white/70">Belum dibayar</p>
+                            <p className="text-lg font-bold">{rupiah(stats.cash_this_month)}</p>
+                            <p className="text-xs text-white/70">Kas masuk bln ini</p>
                         </div>
                         <div>
                             <p className="text-lg font-bold">{rupiah(stats.expense_this_month)}</p>
                             <p className="text-xs text-white/70">Pengeluaran</p>
                         </div>
                         <div>
-                            <p className={`text-lg font-bold ${stats.profit_this_month >= 0 ? 'text-white' : 'text-rose-300'}`}>{rupiah(stats.profit_this_month)}</p>
-                            <p className="text-xs text-white/70">Laba bersih</p>
+                            <p className={`text-lg font-bold ${stats.profit_this_month >= 0 ? 'text-white' : 'text-rose-200'}`}>{rupiah(stats.profit_this_month)}</p>
+                            <p className="text-xs text-white/70">Laba operasional</p>
+                        </div>
+                        <div>
+                            <p className="text-lg font-bold">{rupiah(stats.receivables)}</p>
+                            <p className="text-xs text-white/70">Belum dibayar</p>
                         </div>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-white/20 pt-3 text-xs text-white/80">
-                        <span>3 bulan: <b className="text-white">{rupiah(stats.income_last_3_months)}</b></span>
-                        <span>Uang masuk {stats.current_year}: <b className="text-white">{rupiah(stats.income_this_year)}</b></span>
+                        <span>Pendapatan 3 bulan: <b className="text-white">{rupiah(stats.income_last_3_months)}</b></span>
+                        <span>Kas masuk {stats.current_year}: <b className="text-white">{rupiah(stats.cash_this_year)}</b></span>
                     </div>
                 </div>
             </div>

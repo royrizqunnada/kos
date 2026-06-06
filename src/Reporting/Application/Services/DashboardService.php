@@ -35,11 +35,16 @@ final readonly class DashboardService
             'active_tenants' => $this->tenants->countActive(),
             'unpaid_invoices' => $this->invoices->unpaidCount(),
             'receivables' => (float) $this->invoices->outstandingTotal(),
+            // Pendapatan (revenue, alokasi per bulan masa sewa)
             'income_this_month' => $this->reports->income($now->startOfMonth(), $now->endOfMonth()),
             'income_last_3_months' => $this->reports->income($now->subMonths(2)->startOfMonth(), $now->endOfMonth()),
+            // Kas masuk (cash flow, berdasarkan tanggal bayar)
+            'cash_this_month' => $this->reports->paymentIncome($now->startOfMonth(), $now->endOfMonth()),
+            'cash_this_year' => $this->reports->paymentIncome($now->startOfYear(), $now->endOfYear()),
             'income_this_year' => $this->reports->paymentIncome($now->startOfYear(), $now->endOfYear()),
             'current_year' => (int) $now->year,
             'expense_this_month' => $this->reports->expense($now->startOfMonth(), $now->endOfMonth()),
+            // Laba operasional = Pendapatan - Pengeluaran
             'profit_this_month' => $this->reports->income($now->startOfMonth(), $now->endOfMonth()) - $this->reports->expense($now->startOfMonth(), $now->endOfMonth()),
             'overdue_invoices' => Invoice::query()
                 ->whereIn('status', ['unpaid', 'partial', 'overdue'])
