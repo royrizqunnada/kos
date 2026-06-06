@@ -33,7 +33,7 @@ final readonly class GenerateDueInvoicesAction
                     $last = $lease->invoices()->orderByDesc('period_end')->first();
                     $nextStart = $last
                         ? CarbonImmutable::parse($last->period_end)->addDay()
-                        : CarbonImmutable::parse($lease->start_date)->startOfMonth();
+                        : CarbonImmutable::parse($lease->start_date);
 
                     // Lewat masa kontrak, atau periode berikutnya masih jauh -> lewati.
                     if ($nextStart->isAfter($leaseEnd) || $nextStart->isAfter($aheadLimit)) {

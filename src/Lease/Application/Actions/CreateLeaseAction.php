@@ -49,7 +49,7 @@ final readonly class CreateLeaseAction
             if ($generateFirstInvoice) {
                 $this->generateInvoice->execute(
                     $lease->load('room'),
-                    CarbonImmutable::parse($data->startDate)->startOfMonth(),
+                    CarbonImmutable::parse($data->startDate),
                     $data->duration->months()
                 );
             }
