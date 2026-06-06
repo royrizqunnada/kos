@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Badge, Button, Card, EmptyState, PageHeader, Pagination, Segmented } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
 import type { Paginated, Payment } from '@/types';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Receipt } from 'lucide-react';
 
 export default function Index({ payments }: { payments: Paginated<Payment> }) {
     const hapus = (p: Payment) => {
@@ -35,6 +35,7 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                                         <p className="truncate text-sm text-slate-500">{p.invoice?.invoice_number ?? '-'} · {tanggal(p.paid_at)}</p>
                                     </div>
                                     <span className="mr-1 font-bold text-emerald-600">{rupiah(p.amount)}</span>
+                                    <Link href={`/payments/${p.id}/kwitansi`} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 active:bg-slate-100" title="Kwitansi"><Receipt size={16} /></Link>
                                     <Link href={`/payments/${p.id}/edit`} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 active:bg-slate-100" title="Edit"><Pencil size={16} /></Link>
                                     <button onClick={() => hapus(p)} className="grid h-9 w-9 place-items-center rounded-lg text-rose-500 active:bg-rose-50" title="Hapus"><Trash2 size={16} /></button>
                                 </li>
@@ -59,6 +60,7 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                                             <td className="px-4 py-3 font-semibold text-emerald-600">{rupiah(p.amount)}</td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-3">
+                                                    <Link href={`/payments/${p.id}/kwitansi`} className="text-slate-500 hover:underline">Kwitansi</Link>
                                                     <Link href={`/payments/${p.id}/edit`} className="text-brand-600 hover:underline">Edit</Link>
                                                     <button onClick={() => hapus(p)} className="text-rose-600 hover:underline">Hapus</button>
                                                 </div>

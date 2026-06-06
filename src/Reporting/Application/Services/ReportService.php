@@ -10,6 +10,7 @@ use Src\Invoice\Domain\Enums\InvoiceStatus;
 use Src\Invoice\Domain\Models\Invoice;
 use Src\Lease\Domain\Enums\LeaseStatus;
 use Src\Lease\Domain\Models\Lease;
+use Src\Payment\Domain\Models\Payment;
 use Src\Room\Domain\Enums\RoomStatus;
 use Src\Room\Domain\Models\Room;
 
@@ -47,6 +48,13 @@ final class ReportService
 
                 return $monthly * $months;
             });
+    }
+
+    public function paymentIncome(CarbonImmutable $from, CarbonImmutable $to): float
+    {
+        return (float) Payment::query()
+            ->whereBetween('paid_at', [$from->startOfDay(), $to->endOfDay()])
+            ->sum('amount');
     }
 
     public function expense(CarbonImmutable $from, CarbonImmutable $to): float

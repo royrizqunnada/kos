@@ -1,16 +1,19 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Card, EmptyState } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
-import { DoorClosed, DoorOpen, Users, AlarmClock, Wallet, FileSignature, Lightbulb } from 'lucide-react';
+import { DoorClosed, DoorOpen, Users, AlarmClock, Wallet, FileSignature, Lightbulb, AlertTriangle, Clock, CalendarX } from 'lucide-react';
 
 interface Activity { type: string; title: string; subtitle: string; amount: number | null; date: string }
+interface AlertItem { id: number; tenant_name: string | null; room_number: string | null; due_date?: string; end_date?: string; outstanding?: number; invoice_number?: string }
+interface MonthSeries { month: string; income: number; expense: number }
 interface Stats {
     rooms_total: number; rooms_occupied: number; rooms_available: number; rooms_maintenance: number;
     occupancy_rate: number; active_tenants: number; unpaid_invoices: number; overdue_invoices: number;
     receivables: number; income_this_month: number; income_last_3_months: number; income_this_year: number;
-    current_year: number; expense_this_month: number;
+    current_year: number; expense_this_month: number; profit_this_month: number;
     recent_activity: Activity[];
+    alerts: { overdue: AlertItem[]; due_soon: AlertItem[]; lease_ending: AlertItem[] };
 }
 
 function waktuLalu(iso: string): string {
@@ -61,7 +64,34 @@ function ActivityRow({ item }: { item: Activity }) {
     );
 }
 
-export default function Dashboard({ stats }: { stats: Stats }) {
+function RevenueChart({ series }: { series: MonthSeries[] }) {
+    const max = Math.max(...series.map((s) => Math.max(s.income, s.expense)), 1);
+    return (
+        <div className="flex h-32 items-end gap-1">
+            {series.map((s) => (
+                <div key={s.month} className="flex flex-1 flex-col items-center gap-0.5">
+                    <div className="flex w-full items-end justify-center gap-0.5" style={{ height: '100px' }}>
+                        <div
+                            className="w-2 rounded-t bg-brand-500"
+                            style={{ height: `${Math.round((s.income / max) * 100)}px` }}
+                            title={`Pendapatan: ${rupiah(s.income)}`}
+                        />
+                        <div
+                            className="w-2 rounded-t bg-rose-300"
+                            style={{ height: `${Math.round((s.expense / max) * 100)}px` }}
+                            title={`Pengeluaran: ${rupiah(s.expense)}`}
+                        />
+                    </div>
+                    <span className="text-[9px] text-slate-400">{s.month}</span>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+export default function Dashboard({ stats, revenueSeries }: { stats: Stats; revenueSeries?: MonthSeries[] }) {
+    const totalAlerts = stats.alerts.overdue.length + stats.alerts.due_soon.length + stats.alerts.lease_ending.length;
+
     return (
         <AuthenticatedLayout>
             <Head title="Dashboard" />
@@ -72,7 +102,7 @@ export default function Dashboard({ stats }: { stats: Stats }) {
                 <div className="relative">
                     <p className="text-sm text-white/80">Pendapatan bulan ini</p>
                     <p className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">{rupiah(stats.income_this_month)}</p>
-                    <div className="mt-5 flex gap-8">
+                    <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2">
                         <div>
                             <p className="text-lg font-bold">{rupiah(stats.receivables)}</p>
                             <p className="text-xs text-white/70">Belum dibayar</p>
@@ -81,15 +111,61 @@ export default function Dashboard({ stats }: { stats: Stats }) {
                             <p className="text-lg font-bold">{rupiah(stats.expense_this_month)}</p>
                             <p className="text-xs text-white/70">Pengeluaran</p>
                         </div>
+                        <div>
+                            <p className={`text-lg font-bold ${stats.profit_this_month >= 0 ? 'text-white' : 'text-rose-300'}`}>{rupiah(stats.profit_this_month)}</p>
+                            <p className="text-xs text-white/70">Laba bersih</p>
+                        </div>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 border-t border-white/20 pt-3 text-xs text-white/80">
-                        <span>Pendapatan 3 bulan: <b className="text-white">{rupiah(stats.income_last_3_months)}</b></span>
-                        <span>Tahun {stats.current_year}: <b className="text-white">{rupiah(stats.income_this_year)}</b></span>
+                        <span>3 bulan: <b className="text-white">{rupiah(stats.income_last_3_months)}</b></span>
+                        <span>Uang masuk {stats.current_year}: <b className="text-white">{rupiah(stats.income_this_year)}</b></span>
                     </div>
                 </div>
             </div>
 
-            {/* Statistik (sesuai PDF) */}
+            {/* Perlu Perhatian */}
+            {totalAlerts > 0 && (
+                <Card className="mt-5 overflow-hidden">
+                    <div className="flex items-center gap-2 border-b border-amber-100 bg-amber-50 px-5 py-3">
+                        <AlertTriangle size={16} className="text-amber-500" />
+                        <span className="text-sm font-semibold text-amber-700">Perlu Perhatian</span>
+                        <span className="ml-auto rounded-full bg-amber-200 px-2 py-0.5 text-xs font-bold text-amber-700">{totalAlerts}</span>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                        {stats.alerts.overdue.map((a) => (
+                            <Link key={`ov-${a.id}`} href={`/invoices/${a.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-rose-50">
+                                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-rose-100"><Clock size={14} className="text-rose-600" /></div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-slate-800">{a.tenant_name} · Kamar {a.room_number}</p>
+                                    <p className="text-xs text-slate-500">Tagihan telat · jatuh tempo {tanggal(a.due_date!)}</p>
+                                </div>
+                                <span className="shrink-0 text-sm font-bold text-rose-600">{rupiah(a.outstanding!)}</span>
+                            </Link>
+                        ))}
+                        {stats.alerts.due_soon.map((a) => (
+                            <Link key={`ds-${a.id}`} href={`/invoices/${a.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-amber-50">
+                                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-100"><Clock size={14} className="text-amber-600" /></div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-slate-800">{a.tenant_name} · Kamar {a.room_number}</p>
+                                    <p className="text-xs text-slate-500">Jatuh tempo {tanggal(a.due_date!)}</p>
+                                </div>
+                                <span className="shrink-0 text-sm font-bold text-amber-600">{rupiah(a.outstanding!)}</span>
+                            </Link>
+                        ))}
+                        {stats.alerts.lease_ending.map((a) => (
+                            <Link key={`le-${a.id}`} href={`/leases/${a.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-indigo-50">
+                                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-indigo-100"><CalendarX size={14} className="text-indigo-600" /></div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-slate-800">{a.tenant_name} · Kamar {a.room_number}</p>
+                                    <p className="text-xs text-slate-500">Kontrak habis {tanggal(a.end_date!)}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </Card>
+            )}
+
+            {/* Statistik */}
             <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
                 <MiniStat icon={DoorClosed} label="Kamar terisi" value={String(stats.rooms_occupied)} tone="bg-blue-100 text-blue-600" />
                 <MiniStat icon={DoorOpen} label="Kamar kosong" value={String(stats.rooms_available)} tone="bg-emerald-100 text-emerald-600" />
@@ -108,6 +184,20 @@ export default function Dashboard({ stats }: { stats: Stats }) {
                 </div>
                 <p className="mt-2 text-xs text-slate-400">{stats.rooms_occupied} dari {stats.rooms_total} kamar terisi</p>
             </Card>
+
+            {/* Grafik tren pendapatan */}
+            {revenueSeries && revenueSeries.some((s) => s.income > 0 || s.expense > 0) && (
+                <Card className="mt-5 p-5">
+                    <div className="mb-4 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-slate-700">Tren Pendapatan & Pengeluaran</span>
+                        <div className="flex items-center gap-3 text-xs text-slate-500">
+                            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded bg-brand-500" /> Pendapatan</span>
+                            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded bg-rose-300" /> Pengeluaran</span>
+                        </div>
+                    </div>
+                    <RevenueChart series={revenueSeries} />
+                </Card>
+            )}
 
             {/* Aktivitas terbaru */}
             <h2 className="mb-2 mt-6 px-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Aktivitas Terbaru</h2>

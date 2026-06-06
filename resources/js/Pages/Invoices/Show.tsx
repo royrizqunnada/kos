@@ -4,8 +4,21 @@ import { Badge, Button, Card, PageHeader, SecondaryButton } from '@/Components/u
 import { rupiah, tanggal } from '@/lib/format';
 import type { Invoice } from '@/types';
 
+function waLink(invoice: Invoice): string {
+    const phone = invoice.lease?.tenant?.phone ?? '';
+    const cleaned = phone.replace(/\D/g, '');
+    const wa = cleaned.startsWith('0') ? '62' + cleaned.slice(1) : cleaned.startsWith('62') ? cleaned : '62' + cleaned;
+    const tenant = invoice.lease?.tenant?.name ?? 'Kak';
+    const room = invoice.lease?.room?.room_number ?? '-';
+    const amount = new Intl.NumberFormat('id-ID').format(Number(invoice.amount));
+    const due = new Date(invoice.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const msg = `Halo ${tenant}, kami ingin menginformasikan bahwa tagihan sewa kamar ${room} (${invoice.invoice_number}) sebesar Rp${amount} jatuh tempo pada ${due}. Mohon segera diselesaikan. Terima kasih 🙏`;
+    return `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
+}
+
 export default function Show({ invoice }: { invoice: Invoice }) {
     const outstanding = Number(invoice.amount) - Number(invoice.paid_amount);
+    const hasPhone = !!(invoice.lease?.tenant?.phone);
     return (
         <AuthenticatedLayout>
             <Head title={invoice.invoice_number} />
@@ -15,6 +28,11 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                 action={
                     <div className="flex flex-wrap gap-2">
                         <Link href="/invoices"><SecondaryButton>Kembali</SecondaryButton></Link>
+                        {hasPhone && invoice.status !== 'paid' && (
+                            <a href={waLink(invoice)} target="_blank" rel="noreferrer">
+                                <SecondaryButton className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">📲 Kirim WA</SecondaryButton>
+                            </a>
+                        )}
                         {invoice.status !== 'paid' && (
                             <Link href={`/payments/create?invoice_id=${invoice.id}`}><Button>Catat Pembayaran</Button></Link>
                         )}

@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::get('payments/create', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::get('payments/{payment}/kwitansi', [PaymentController::class, 'kwitansi'])->name('payments.kwitansi');
     Route::put('payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
     Route::delete('payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 

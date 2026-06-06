@@ -37,14 +37,62 @@ final readonly class DashboardService
             'receivables' => (float) $this->invoices->outstandingTotal(),
             'income_this_month' => $this->reports->income($now->startOfMonth(), $now->endOfMonth()),
             'income_last_3_months' => $this->reports->income($now->subMonths(2)->startOfMonth(), $now->endOfMonth()),
-            'income_this_year' => $this->reports->income($now->startOfYear(), $now->endOfYear()),
+            'income_this_year' => $this->reports->paymentIncome($now->startOfYear(), $now->endOfYear()),
             'current_year' => (int) $now->year,
             'expense_this_month' => $this->reports->expense($now->startOfMonth(), $now->endOfMonth()),
+            'profit_this_month' => $this->reports->income($now->startOfMonth(), $now->endOfMonth()) - $this->reports->expense($now->startOfMonth(), $now->endOfMonth()),
             'overdue_invoices' => Invoice::query()
                 ->whereIn('status', ['unpaid', 'partial', 'overdue'])
                 ->whereDate('due_date', '<', $now->toDateString())
                 ->count(),
             'recent_activity' => $this->recentActivity(),
+            'alerts' => [
+                'overdue' => Invoice::query()
+                    ->with(['lease.tenant:id,name,phone', 'lease.room:id,room_number'])
+                    ->whereIn('status', ['unpaid', 'partial', 'overdue'])
+                    ->whereDate('due_date', '<', $now->toDateString())
+                    ->orderBy('due_date')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn (Invoice $i) => [
+                        'id' => $i->id,
+                        'invoice_number' => $i->invoice_number,
+                        'tenant_name' => $i->lease?->tenant?->name,
+                        'room_number' => $i->lease?->room?->room_number,
+                        'due_date' => $i->due_date->toDateString(),
+                        'outstanding' => (float) (float) $i->amount - (float) $i->paid_amount,
+                    ])->all(),
+                'due_soon' => Invoice::query()
+                    ->with(['lease.tenant:id,name,phone', 'lease.room:id,room_number'])
+                    ->whereIn('status', ['unpaid', 'partial'])
+                    ->whereDate('due_date', '>=', $now->toDateString())
+                    ->whereDate('due_date', '<=', $now->addDays(7)->toDateString())
+                    ->orderBy('due_date')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn (Invoice $i) => [
+                        'id' => $i->id,
+                        'invoice_number' => $i->invoice_number,
+                        'tenant_name' => $i->lease?->tenant?->name,
+                        'room_number' => $i->lease?->room?->room_number,
+                        'due_date' => $i->due_date->toDateString(),
+                        'outstanding' => (float) (float) $i->amount - (float) $i->paid_amount,
+                    ])->all(),
+                'lease_ending' => Lease::query()
+                    ->with(['tenant:id,name,phone', 'room:id,room_number'])
+                    ->where('status', 'active')
+                    ->whereDate('end_date', '>=', $now->toDateString())
+                    ->whereDate('end_date', '<=', $now->addDays(7)->toDateString())
+                    ->orderBy('end_date')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn (Lease $l) => [
+                        'id' => $l->id,
+                        'tenant_name' => $l->tenant?->name,
+                        'room_number' => $l->room?->room_number,
+                        'end_date' => $l->end_date->toDateString(),
+                    ])->all(),
+            ],
         ];
     }
 

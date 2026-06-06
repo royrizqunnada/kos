@@ -110,6 +110,32 @@ class PaymentController extends Controller
         return redirect()->route('payments.index')->with('success', 'Pembayaran berhasil diperbarui.');
     }
 
+    public function kwitansi(Payment $payment): Response
+    {
+        $this->authorize('view', $payment);
+        $payment->load(['invoice.lease.tenant', 'invoice.lease.room', 'invoice.items', 'recordedBy']);
+
+        return Inertia::render('Payments/Kwitansi', [
+            'payment' => [
+                'id' => $payment->id,
+                'amount' => (float) $payment->amount,
+                'method' => $payment->method->value,
+                'paid_at' => $payment->paid_at->toDateString(),
+                'note' => $payment->note,
+                'recorded_by' => $payment->recordedBy?->name,
+                'invoice' => [
+                    'invoice_number' => $payment->invoice?->invoice_number,
+                    'period_start' => $payment->invoice?->period_start?->toDateString(),
+                    'period_end' => $payment->invoice?->period_end?->toDateString(),
+                    'amount' => (float) $payment->invoice?->amount,
+                ],
+                'tenant_name' => $payment->invoice?->lease?->tenant?->name,
+                'room_number' => $payment->invoice?->lease?->room?->room_number,
+            ],
+            'kos_name' => config('app.name'),
+        ]);
+    }
+
     public function destroy(Payment $payment, DeletePaymentAction $action): RedirectResponse
     {
         $this->authorize('delete', $payment);
