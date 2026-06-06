@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Src\Invoice\Domain\Models\Invoice;
 use Src\Lease\Domain\Enums\LeaseDuration;
 use Src\Lease\Domain\Enums\LeaseStatus;
@@ -18,7 +19,7 @@ use Src\Tenant\Domain\Models\Tenant;
 class Lease extends Model
 {
     /** @use HasFactory<LeaseFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'room_id', 'tenant_id', 'start_date', 'end_date',
@@ -39,6 +40,17 @@ class Lease extends Model
             'deposit_refunded' => 'decimal:2',
             'deposit_deduction' => 'decimal:2',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Soft-delete bertingkat: arsipkan tagihan (yang ikut mengarsipkan pembayaran)
+        // saat kontrak diarsipkan. Iterasi agar event `deleting` tiap tagihan ikut jalan.
+        static::deleting(function (Lease $lease): void {
+            if (! $lease->isForceDeleting()) {
+                $lease->invoices()->get()->each->delete();
+            }
+        });
     }
 
     /**

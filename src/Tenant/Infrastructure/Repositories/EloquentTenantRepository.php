@@ -13,11 +13,14 @@ final class EloquentTenantRepository implements TenantRepositoryInterface
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         return Tenant::query()
+            ->withCount(['leases', 'leases as active_count' => fn ($q) => $q->where('status', 'active')])
             ->when($filters['search'] ?? null, function ($q, $s) {
                 $q->where(fn ($w) => $w->where('name', 'ilike', "%$s%")
                     ->orWhere('nik', 'ilike', "%$s%")
                     ->orWhere('phone', 'ilike', "%$s%"));
             })
+            ->when(($filters['status'] ?? null) === 'aktif', fn ($q) => $q->whereHas('leases', fn ($l) => $l->where('status', 'active')))
+            ->when(($filters['status'] ?? null) === 'mantan', fn ($q) => $q->whereHas('leases')->whereDoesntHave('leases', fn ($l) => $l->where('status', 'active')))
             ->latest()
             ->paginate($perPage)
             ->withQueryString();

@@ -22,8 +22,8 @@ class TenantController extends Controller
         $this->authorize('viewAny', Tenant::class);
 
         return Inertia::render('Tenants/Index', [
-            'tenants' => $this->tenants->paginate($request->only('search')),
-            'filters' => $request->only('search'),
+            'tenants' => $this->tenants->paginate($request->only('search', 'status')),
+            'filters' => $request->only('search', 'status'),
         ]);
     }
 
@@ -52,7 +52,19 @@ class TenantController extends Controller
     {
         $this->authorize('view', $tenant);
 
-        return Inertia::render('Tenants/Show', ['tenant' => $this->tenants->find($tenant->id)]);
+        $detail = $this->tenants->find($tenant->id);
+        $totalPaid = (float) \Src\Payment\Domain\Models\Payment::query()
+            ->whereHas('invoice.lease', fn ($q) => $q->where('tenant_id', $tenant->id))
+            ->sum('amount');
+
+        return Inertia::render('Tenants/Show', [
+            'tenant' => $detail,
+            'stats' => [
+                'total_leases' => $detail?->leases->count() ?? 0,
+                'is_active' => (bool) ($detail?->leases->contains(fn ($l) => $l->status->value === 'active')),
+                'total_paid' => $totalPaid,
+            ],
+        ]);
     }
 
     public function edit(Tenant $tenant): Response

@@ -19,7 +19,7 @@ final readonly class DeleteLeaseAction
                 $lease->room()->update(['status' => RoomStatus::Available->value]);
             }
 
-            // Hapus kontrak — tagihan, item, & pembayaran ikut terhapus (cascade FK).
+            // Tagihan & pembayaran ikut diarsipkan lewat event `deleting` di model.
             $lease->delete();
         });
     }

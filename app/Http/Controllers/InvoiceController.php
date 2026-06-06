@@ -49,9 +49,9 @@ class InvoiceController extends Controller
     {
         $this->authorize('delete', $invoice);
 
-        // Pembayaran & item ikut terhapus (cascade FK).
+        // Pembayaran ikut diarsipkan lewat event `deleting` di model Invoice.
         $invoice->delete();
 
-        return redirect()->route('invoices.index')->with('success', 'Tagihan beserta pembayarannya dihapus.');
+        return redirect()->route('invoices.index')->with('success', 'Tagihan beserta pembayarannya diarsipkan.');
     }
 }

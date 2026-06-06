@@ -46,6 +46,7 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                     <div className="flex flex-wrap gap-2">
                         <Link href="/leases"><SecondaryButton>Kembali</SecondaryButton></Link>
                         <Link href={`/leases/${lease.id}/edit`}><SecondaryButton>Edit</SecondaryButton></Link>
+                        <Link href={`/leases/${lease.id}/renew`}><SecondaryButton>Perpanjang</SecondaryButton></Link>
                         {lease.status === 'active' && (
                             <Button onClick={() => setShowCheckout(true)} className="bg-rose-600 hover:bg-rose-700">Akhiri & Check-out</Button>
                         )}

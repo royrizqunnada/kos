@@ -8,6 +8,7 @@ use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Src\Identity\Domain\Models\User;
 use Src\Invoice\Domain\Models\Invoice;
 use Src\Payment\Domain\Enums\PaymentMethod;
@@ -15,7 +16,7 @@ use Src\Payment\Domain\Enums\PaymentMethod;
 class Payment extends Model
 {
     /** @use HasFactory<PaymentFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'invoice_id', 'recorded_by', 'amount', 'method', 'paid_at', 'proof_path', 'note',

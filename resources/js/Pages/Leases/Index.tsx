@@ -1,9 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Badge, Button, Card, EmptyState, PageHeader, Pagination, Select } from '@/Components/ui';
+import { Badge, Button, Card, EmptyState, PageHeader, Pagination, SecondaryButton, Select } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
 import type { Lease, Option, Paginated } from '@/types';
-import { Plus } from 'lucide-react';
+import { Archive, Plus } from 'lucide-react';
 
 export default function Index({ leases, filters, statuses }: { leases: Paginated<Lease>; filters: { status?: string }; statuses: Option[] }) {
     const statusLabel = (l: Lease) => statuses.find((s) => s.value === l.status)?.label ?? l.status;
@@ -19,7 +19,12 @@ export default function Index({ leases, filters, statuses }: { leases: Paginated
             <PageHeader
                 title="Kontrak Sewa"
                 subtitle="Daftar kontrak penghuni & kamar"
-                action={<Link href="/leases/create"><Button><Plus size={16} /> Buat Kontrak</Button></Link>}
+                action={
+                    <div className="flex items-center gap-2">
+                        <Link href="/leases/arsip"><SecondaryButton><Archive size={16} /> Arsip</SecondaryButton></Link>
+                        <Link href="/leases/create"><Button><Plus size={16} /> Buat Kontrak</Button></Link>
+                    </div>
+                }
             />
             <Card>
                 <div className="border-b border-slate-100 p-4">

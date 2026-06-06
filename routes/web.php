@@ -30,11 +30,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('leases', [LeaseController::class, 'index'])->name('leases.index');
     Route::get('leases/create', [LeaseController::class, 'create'])->name('leases.create');
+    Route::get('leases/arsip', [LeaseController::class, 'archive'])->name('leases.archive');
     Route::post('leases', [LeaseController::class, 'store'])->name('leases.store');
     Route::get('leases/{lease}/edit', [LeaseController::class, 'edit'])->name('leases.edit');
     Route::put('leases/{lease}', [LeaseController::class, 'update'])->name('leases.update');
     Route::get('leases/{lease}', [LeaseController::class, 'show'])->name('leases.show');
     Route::post('leases/{lease}/end', [LeaseController::class, 'end'])->name('leases.end');
+    Route::get('leases/{lease}/renew', [LeaseController::class, 'renew'])->name('leases.renew');
+    Route::post('leases/{lease}/renew', [LeaseController::class, 'storeRenew'])->name('leases.renew.store');
+    Route::post('leases/{lease}/restore', [LeaseController::class, 'restore'])->name('leases.restore');
+    Route::delete('leases/{lease}/force', [LeaseController::class, 'forceDelete'])->name('leases.force');
     Route::delete('leases/{lease}', [LeaseController::class, 'destroy'])->name('leases.destroy');
 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
