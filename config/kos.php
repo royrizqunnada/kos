@@ -1,10 +1,24 @@
 <?php
 
 return [
-    // Identitas kos untuk kwitansi & tagihan.
+    // Identitas kos untuk kwitansi, tagihan & halaman profil publik.
     'name' => env('KOS_NAME', 'Cozy Corner'),
     'tagline' => env('KOS_TAGLINE', 'Student Living In Semarang'),
     'owner' => env('KOS_OWNER', 'Febrina Nuke Kardini'),
+
+    // Halaman profil publik (cozycornerliving.id).
+    'profile_domain' => env('PROFILE_DOMAIN', 'cozycornerliving.id'),
+    'phone' => env('KOS_PHONE', '6282323671558'),            // untuk wa.me (tanpa +)
+    'phone_display' => env('KOS_PHONE_DISPLAY', '0823-2367-1558'),
+    'address_line1' => env('KOS_ADDRESS_1', 'Jl. Klentengsari I No. 27A, RT 06 RW 02'),
+    'address_line2' => env('KOS_ADDRESS_2', 'Kel. Pedalangan, Kec. Banyumanik'),
+    'address_line3' => env('KOS_ADDRESS_3', 'Kota Semarang, Jawa Tengah'),
+    'near' => env('KOS_NEAR', '± 2 KM dari UNDIP Tembalang'),
+    'maps_url' => env('KOS_MAPS_URL', 'https://maps.app.goo.gl/4kC8S41LbBdUsA6HA'),
+    'instagram' => env('KOS_INSTAGRAM', 'https://instagram.com/cozycorner.semarang'),
+    'instagram_handle' => env('KOS_INSTAGRAM_HANDLE', '@cozycorner.semarang'),
+    'tiktok' => env('KOS_TIKTOK', 'https://tiktok.com/@cozycorner.semarang'),
+    'tagline_long' => env('KOS_TAGLINE_LONG', 'Hunian nyaman dan aman untuk mahasiswi, hanya ± 2 KM dari UNDIP Tembalang. Kamar mandi dalam, AC, WiFi, dan CCTV 24 jam.'),
 
     // Default reminder day-offsets relative to invoice due date.
     'reminder_offsets' => [-7, -3, -1, 1, 7],

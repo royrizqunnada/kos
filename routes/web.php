@@ -8,12 +8,18 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaseController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
+
+// Halaman profil publik di domain utama (cozycornerliving.id) — terpisah dari app manajemen.
+Route::domain(config('kos.profile_domain'))->group(function () {
+    Route::get('/', [PublicProfileController::class, 'index'])->name('profile.home');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
