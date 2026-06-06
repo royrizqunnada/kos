@@ -1,11 +1,12 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Card, EmptyState } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
 import { DoorClosed, DoorOpen, Users, AlarmClock, Wallet, FileSignature, Lightbulb, AlertTriangle, Clock, CalendarX } from 'lucide-react';
 
 interface Activity { type: string; title: string; subtitle: string; amount: number | null; date: string }
-interface AlertItem { id: number; tenant_name: string | null; room_number: string | null; due_date?: string; end_date?: string; outstanding?: number; invoice_number?: string }
+interface AlertItem { id: number; tenant_name: string | null; room_number: string | null; tenant_phone?: string | null; due_date?: string; end_date?: string; outstanding?: number; invoice_number?: string }
 interface MonthSeries { month: string; income: number; expense: number }
 interface Stats {
     rooms_total: number; rooms_occupied: number; rooms_available: number; rooms_maintenance: number;
@@ -91,7 +92,20 @@ function RevenueChart({ series }: { series: MonthSeries[] }) {
 }
 
 export default function Dashboard({ stats, revenueSeries }: { stats: Stats; revenueSeries?: MonthSeries[] }) {
-    const totalAlerts = stats.alerts.overdue.length + stats.alerts.due_soon.length + stats.alerts.lease_ending.length;
+    const [ignored, setIgnored] = useState<number[]>([]);
+    const endingLeases = stats.alerts.lease_ending.filter((a) => !ignored.includes(a.id));
+    const totalAlerts = stats.alerts.overdue.length + stats.alerts.due_soon.length + endingLeases.length;
+
+    const perpanjang = (a: AlertItem) => {
+        if (confirm(`Perpanjang kontrak ${a.tenant_name} (Kamar ${a.room_number})? Kontrak & tagihan periode baru otomatis dibuat.`)) {
+            router.post(`/leases/${a.id}/quick-renew`);
+        }
+    };
+    const waLanjut = (a: AlertItem) => {
+        const wa = (a.tenant_phone ?? '').replace(/\D/g, '').replace(/^0/, '62');
+        const msg = `Halo ${a.tenant_name}, kontrak kamar ${a.room_number} akan habis pada ${tanggal(a.end_date!)}. Apakah ingin dilanjutkan (perpanjang)? Mohon konfirmasinya ya. Terima kasih 🙏`;
+        return `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
+    };
 
     return (
         <AuthenticatedLayout>
@@ -157,14 +171,23 @@ export default function Dashboard({ stats, revenueSeries }: { stats: Stats; reve
                                 <span className="shrink-0 text-sm font-bold text-amber-600">{rupiah(a.outstanding!)}</span>
                             </Link>
                         ))}
-                        {stats.alerts.lease_ending.map((a) => (
-                            <Link key={`le-${a.id}`} href={`/leases/${a.id}`} className="flex items-center gap-3 px-5 py-3 hover:bg-indigo-50">
-                                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-indigo-100"><CalendarX size={14} className="text-indigo-600" /></div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-slate-800">{a.tenant_name} · Kamar {a.room_number}</p>
-                                    <p className="text-xs text-slate-500">Kontrak habis {tanggal(a.end_date!)}</p>
+                        {endingLeases.map((a) => (
+                            <div key={`le-${a.id}`} className="px-5 py-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-indigo-100"><CalendarX size={14} className="text-indigo-600" /></div>
+                                    <Link href={`/leases/${a.id}`} className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-semibold text-slate-800">{a.tenant_name} · Kamar {a.room_number}</p>
+                                        <p className="text-xs text-slate-500">Kontrak habis {tanggal(a.end_date!)} — lanjut atau tidak?</p>
+                                    </Link>
                                 </div>
-                            </Link>
+                                <div className="mt-2 flex flex-wrap items-center gap-2 pl-11">
+                                    <button onClick={() => perpanjang(a)} className="inline-flex items-center gap-1 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white active:bg-brand-700">✅ Lanjut (Perpanjang)</button>
+                                    {a.tenant_phone && (
+                                        <a href={waLanjut(a)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-medium text-emerald-700 active:bg-emerald-50">📲 Tanya WA</a>
+                                    )}
+                                    <button onClick={() => setIgnored((prev) => [...prev, a.id])} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 active:bg-slate-100">❌ Tidak</button>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </Card>

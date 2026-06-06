@@ -94,6 +94,7 @@ final readonly class DashboardService
                     ->map(fn (Lease $l) => [
                         'id' => $l->id,
                         'tenant_name' => $l->tenant?->name,
+                        'tenant_phone' => $l->tenant?->phone,
                         'room_number' => $l->room?->room_number,
                         'end_date' => $l->end_date->toDateString(),
                     ])->all(),

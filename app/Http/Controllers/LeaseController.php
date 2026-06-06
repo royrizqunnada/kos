@@ -163,6 +163,27 @@ class LeaseController extends Controller
         ]);
     }
 
+    /** Perpanjang 1-klik dari dashboard: pakai syarat kontrak lama (kamar, durasi, harga). */
+    public function quickRenew(Lease $lease, RenewLeaseAction $action): RedirectResponse
+    {
+        $this->authorize('create', Lease::class);
+
+        try {
+            $action->execute($lease, new LeaseData(
+                roomId: $lease->room_id,
+                tenantId: $lease->tenant_id,
+                startDate: CarbonImmutable::parse($lease->end_date)->addDay(),
+                duration: $lease->duration,
+                monthlyPrice: (float) $lease->monthly_price,
+                deposit: (float) $lease->deposit,
+            ), true);
+        } catch (Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Kontrak diperpanjang & tagihan periode baru otomatis dibuat.');
+    }
+
     public function storeRenew(StoreLeaseRequest $request, Lease $lease, RenewLeaseAction $action): RedirectResponse
     {
         $this->authorize('create', Lease::class);
