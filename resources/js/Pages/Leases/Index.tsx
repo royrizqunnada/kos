@@ -7,6 +7,11 @@ import { Plus } from 'lucide-react';
 
 export default function Index({ leases, filters, statuses }: { leases: Paginated<Lease>; filters: { status?: string }; statuses: Option[] }) {
     const statusLabel = (l: Lease) => statuses.find((s) => s.value === l.status)?.label ?? l.status;
+    const hapus = (l: Lease) => {
+        if (confirm(`Hapus kontrak ${l.tenant?.name} (Kamar ${l.room?.room_number})? Tagihan & pembayarannya ikut terhapus.`)) {
+            router.delete(`/leases/${l.id}`);
+        }
+    };
 
     return (
         <AuthenticatedLayout>
@@ -61,7 +66,12 @@ export default function Index({ leases, filters, statuses }: { leases: Paginated
                                             <td className="px-4 py-3 text-slate-500">{tanggal(l.start_date)} – {tanggal(l.end_date)}</td>
                                             <td className="px-4 py-3">{rupiah(l.monthly_price)}</td>
                                             <td className="px-4 py-3"><Badge status={l.status} label={statusLabel(l)} /></td>
-                                            <td className="px-4 py-3 text-right"><Link href={`/leases/${l.id}`} className="text-brand-600 hover:underline">Detail</Link></td>
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <Link href={`/leases/${l.id}`} className="text-brand-600 hover:underline">Detail</Link>
+                                                    <button onClick={() => hapus(l)} className="text-rose-600 hover:underline">Hapus</button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

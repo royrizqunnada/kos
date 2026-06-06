@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { FormEvent, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Badge, Button, Card, Field, Input, PageHeader, SecondaryButton, Textarea } from '@/Components/ui';
@@ -49,6 +49,16 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                         {lease.status === 'active' && (
                             <Button onClick={() => setShowCheckout(true)} className="bg-rose-600 hover:bg-rose-700">Akhiri & Check-out</Button>
                         )}
+                        <SecondaryButton
+                            onClick={() => {
+                                if (confirm('Hapus kontrak ini? Tagihan & pembayaran terkait ikut terhapus permanen.')) {
+                                    router.delete(`/leases/${lease.id}`);
+                                }
+                            }}
+                            className="border-rose-200 text-rose-600 hover:bg-rose-50"
+                        >
+                            Hapus
+                        </SecondaryButton>
                     </div>
                 }
             />

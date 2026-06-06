@@ -9,6 +9,11 @@ interface Props { invoices: Paginated<Invoice>; filters: { status?: string }; st
 
 export default function Index({ invoices, filters, statuses, outstandingTotal }: Props) {
     const statusLabel = (inv: Invoice) => statuses.find((s) => s.value === inv.status)?.label ?? inv.status;
+    const hapus = (inv: Invoice) => {
+        if (confirm(`Hapus tagihan ${inv.invoice_number}? Pembayaran terkait ikut terhapus.`)) {
+            router.delete(`/invoices/${inv.id}`);
+        }
+    };
 
     return (
         <AuthenticatedLayout>
@@ -60,7 +65,12 @@ export default function Index({ invoices, filters, statuses, outstandingTotal }:
                                             <td className="px-4 py-3">{rupiah(inv.amount)}</td>
                                             <td className="px-4 py-3 text-slate-500">{rupiah(inv.paid_amount)}</td>
                                             <td className="px-4 py-3"><Badge status={inv.status} label={statusLabel(inv)} /></td>
-                                            <td className="px-4 py-3 text-right"><Link href={`/invoices/${inv.id}`} className="text-brand-600 hover:underline">Detail</Link></td>
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <Link href={`/invoices/${inv.id}`} className="text-brand-600 hover:underline">Detail</Link>
+                                                    <button onClick={() => hapus(inv)} className="text-rose-600 hover:underline">Hapus</button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

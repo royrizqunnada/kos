@@ -35,10 +35,12 @@ Route::middleware('auth')->group(function () {
     Route::put('leases/{lease}', [LeaseController::class, 'update'])->name('leases.update');
     Route::get('leases/{lease}', [LeaseController::class, 'show'])->name('leases.show');
     Route::post('leases/{lease}/end', [LeaseController::class, 'end'])->name('leases.end');
+    Route::delete('leases/{lease}', [LeaseController::class, 'destroy'])->name('leases.destroy');
 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
+    Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/create', [PaymentController::class, 'create'])->name('payments.create');

@@ -44,4 +44,14 @@ class InvoiceController extends Controller
 
         return back()->with('success', "$count tagihan berhasil dibuat.");
     }
+
+    public function destroy(Invoice $invoice): RedirectResponse
+    {
+        $this->authorize('delete', $invoice);
+
+        // Pembayaran & item ikut terhapus (cascade FK).
+        $invoice->delete();
+
+        return redirect()->route('invoices.index')->with('success', 'Tagihan beserta pembayarannya dihapus.');
+    }
 }

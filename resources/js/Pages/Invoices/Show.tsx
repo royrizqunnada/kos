@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Badge, Button, Card, PageHeader, SecondaryButton } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
@@ -13,11 +13,21 @@ export default function Show({ invoice }: { invoice: Invoice }) {
                 title={invoice.invoice_number}
                 subtitle={`${invoice.lease?.tenant?.name} · Kamar ${invoice.lease?.room?.room_number}`}
                 action={
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Link href="/invoices"><SecondaryButton>Kembali</SecondaryButton></Link>
                         {invoice.status !== 'paid' && (
                             <Link href={`/payments/create?invoice_id=${invoice.id}`}><Button>Catat Pembayaran</Button></Link>
                         )}
+                        <SecondaryButton
+                            onClick={() => {
+                                if (confirm('Hapus tagihan ini? Pembayaran terkait ikut terhapus permanen.')) {
+                                    router.delete(`/invoices/${invoice.id}`);
+                                }
+                            }}
+                            className="border-rose-200 text-rose-600 hover:bg-rose-50"
+                        >
+                            Hapus
+                        </SecondaryButton>
                     </div>
                 }
             />

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Src\Lease\Application\Actions\CreateLeaseAction;
+use Src\Lease\Application\Actions\DeleteLeaseAction;
 use Src\Lease\Application\Actions\EndLeaseAction;
 use Src\Lease\Application\Actions\UpdateLeaseAction;
 use Src\Lease\Domain\Data\LeaseCheckoutData;
@@ -129,5 +130,13 @@ class LeaseController extends Controller
         }
 
         return redirect()->route('leases.index')->with('success', 'Kontrak diakhiri & kamar dikosongkan.');
+    }
+
+    public function destroy(Lease $lease, DeleteLeaseAction $action): RedirectResponse
+    {
+        $this->authorize('delete', $lease);
+        $action->execute($lease);
+
+        return redirect()->route('leases.index')->with('success', 'Kontrak beserta tagihan & pembayarannya dihapus.');
     }
 }
