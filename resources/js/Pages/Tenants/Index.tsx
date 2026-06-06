@@ -37,7 +37,7 @@ export default function Index({ tenants, filters }: { tenants: Paginated<Tenant>
                         <ul className="divide-y divide-slate-100 lg:hidden">
                             {tenants.data.map((t) => (
                                 <li key={t.id}>
-                                    <Link href={`/tenants/${t.id}/edit`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
+                                    <Link href={`/tenants/${t.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
                                         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">{initial(t.name)}</div>
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate font-semibold text-slate-800">{t.name}</p>
@@ -62,7 +62,7 @@ export default function Index({ tenants, filters }: { tenants: Paginated<Tenant>
                                             <td className="px-4 py-3">{t.phone}</td>
                                             <td className="px-4 py-3 text-slate-500">{t.emergency_contact_name ?? '-'}</td>
                                             <td className="px-4 py-3 text-right">
-                                                <Link href={`/tenants/${t.id}/edit`} className="text-brand-600 hover:underline">Edit</Link>
+                                                <Link href={`/tenants/${t.id}`} className="text-brand-600 hover:underline">Detail</Link>
                                             </td>
                                         </tr>
                                     ))}

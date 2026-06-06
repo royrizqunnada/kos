@@ -33,7 +33,16 @@ export default function TenantForm({ tenant }: { tenant?: Tenant }) {
                 <Field label="HP Kontak Darurat" error={errors.emergency_contact_phone}><Input value={data.emergency_contact_phone} onChange={(e) => setData('emergency_contact_phone', e.target.value)} /></Field>
             </div>
             <Field label="Foto KTP" error={errors.ktp_photo}>
+                {tenant?.ktp_photo && !data.ktp_photo && (
+                    <a href={`/storage/${tenant.ktp_photo}`} target="_blank" rel="noreferrer" className="mb-2 block w-fit">
+                        <img src={`/storage/${tenant.ktp_photo}`} alt="Foto KTP" className="h-40 w-auto rounded-lg border border-slate-200 object-contain" />
+                    </a>
+                )}
+                {data.ktp_photo && (
+                    <img src={URL.createObjectURL(data.ktp_photo)} alt="Pratinjau KTP" className="mb-2 h-40 w-auto rounded-lg border border-slate-200 object-contain" />
+                )}
                 <Input type="file" accept="image/*" onChange={(e) => setData('ktp_photo', e.target.files?.[0] ?? null)} />
+                <p className="mt-1 text-xs text-slate-400">{tenant?.ktp_photo ? 'Pilih file untuk mengganti foto.' : 'JPG/PNG, maksimal 4 MB.'}</p>
             </Field>
             <Button type="submit" disabled={processing}>{tenant ? 'Simpan Perubahan' : 'Simpan Penghuni'}</Button>
         </form>
