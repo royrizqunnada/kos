@@ -16,7 +16,7 @@ class Expense extends Model
     /** @use HasFactory<ExpenseFactory> */
     use HasFactory;
 
-    protected $fillable = ['category', 'amount', 'description', 'spent_at', 'recorded_by'];
+    protected $fillable = ['category', 'amount', 'description', 'spent_at', 'recorded_by', 'recurring_expense_id'];
 
     protected function casts(): array
     {

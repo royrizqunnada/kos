@@ -59,6 +59,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+    Route::post('expenses/recurring', [ExpenseController::class, 'recurringStore'])->name('expenses.recurring.store');
+    Route::post('expenses/recurring/{recurring}/toggle', [ExpenseController::class, 'recurringToggle'])->name('expenses.recurring.toggle');
+    Route::delete('expenses/recurring/{recurring}', [ExpenseController::class, 'recurringDestroy'])->name('expenses.recurring.destroy');
     Route::put('expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
