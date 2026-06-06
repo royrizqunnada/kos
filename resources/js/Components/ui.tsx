@@ -70,12 +70,12 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
     return (
-        <div className="mb-6 flex items-end justify-between gap-4">
-            <div>
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <div className="min-w-0">
                 <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">{title}</h1>
                 {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
             </div>
-            {action}
+            {action && <div className="shrink-0">{action}</div>}
         </div>
     );
 }

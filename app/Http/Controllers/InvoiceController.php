@@ -42,6 +42,6 @@ class InvoiceController extends Controller
         $this->authorize('create', Invoice::class);
         $count = $action->execute(CarbonImmutable::now());
 
-        return back()->with('success', "$count tagihan bulan ini berhasil dibuat.");
+        return back()->with('success', "$count tagihan berhasil dibuat.");
     }
 }

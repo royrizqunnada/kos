@@ -12,20 +12,35 @@ final readonly class GenerateDueInvoicesAction
 {
     public function __construct(private GenerateInvoiceAction $generateInvoice) {}
 
-    /** Generate next-month invoices for every active lease. Returns count created. */
-    public function execute(?CarbonImmutable $forMonth = null): int
+    /**
+     * Generate tagihan termin berikutnya untuk tiap kontrak aktif (mengikuti durasi 1/3/6/12 bulan).
+     * Tagihan dibuat saat periode berikutnya mendekat (config kos.generate_days_ahead).
+     */
+    public function execute(?CarbonImmutable $asOf = null): int
     {
-        $periodStart = ($forMonth ?? CarbonImmutable::now())->startOfMonth();
+        $asOf = ($asOf ?? CarbonImmutable::now())->startOfDay();
+        $aheadLimit = $asOf->addDays((int) config('kos.generate_days_ahead', 7));
         $created = 0;
 
         Lease::query()
             ->where('status', LeaseStatus::Active->value)
-            ->where('start_date', '<=', $periodStart->endOfMonth())
-            ->where('end_date', '>=', $periodStart)
             ->with('room')
-            ->chunkById(100, function ($leases) use ($periodStart, &$created) {
+            ->chunkById(100, function ($leases) use ($aheadLimit, &$created) {
                 foreach ($leases as $lease) {
-                    if ($this->generateInvoice->execute($lease, $periodStart)) {
+                    $months = $lease->duration->months();
+                    $leaseEnd = CarbonImmutable::parse($lease->end_date);
+
+                    $last = $lease->invoices()->orderByDesc('period_end')->first();
+                    $nextStart = $last
+                        ? CarbonImmutable::parse($last->period_end)->addDay()
+                        : CarbonImmutable::parse($lease->start_date)->startOfMonth();
+
+                    // Lewat masa kontrak, atau periode berikutnya masih jauh -> lewati.
+                    if ($nextStart->isAfter($leaseEnd) || $nextStart->isAfter($aheadLimit)) {
+                        continue;
+                    }
+
+                    if ($this->generateInvoice->execute($lease, $nextStart, $months)) {
                         $created++;
                     }
                 }
