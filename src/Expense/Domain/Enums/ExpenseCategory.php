@@ -9,6 +9,7 @@ enum ExpenseCategory: string
     case Electricity = 'electricity';
     case Water = 'water';
     case Internet = 'internet';
+    case Salary = 'salary';
     case Repair = 'repair';
     case Cleaning = 'cleaning';
     case Other = 'other';
@@ -18,7 +19,8 @@ enum ExpenseCategory: string
         return match ($this) {
             self::Electricity => 'Listrik',
             self::Water => 'Air',
-            self::Internet => 'Internet',
+            self::Internet => 'Wifi / Internet',
+            self::Salary => 'Gaji Penjaga',
             self::Repair => 'Perbaikan',
             self::Cleaning => 'Kebersihan',
             self::Other => 'Lain-lain',
