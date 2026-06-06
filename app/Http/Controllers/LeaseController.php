@@ -6,12 +6,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EndLeaseRequest;
 use App\Http\Requests\StoreLeaseRequest;
+use App\Http\Requests\UpdateLeaseRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Src\Lease\Application\Actions\CreateLeaseAction;
 use Src\Lease\Application\Actions\EndLeaseAction;
+use Src\Lease\Application\Actions\UpdateLeaseAction;
 use Src\Lease\Domain\Data\LeaseCheckoutData;
 use Src\Lease\Domain\Data\LeaseData;
 use Src\Lease\Domain\Enums\LeaseDuration;
@@ -64,6 +66,44 @@ class LeaseController extends Controller
         }
 
         return redirect()->route('leases.index')->with('success', 'Kontrak berhasil dibuat.');
+    }
+
+    public function edit(Lease $lease): Response
+    {
+        $this->authorize('update', $lease);
+
+        return Inertia::render('Leases/Edit', [
+            'lease' => [
+                'id' => $lease->id,
+                'room_id' => $lease->room_id,
+                'tenant_id' => $lease->tenant_id,
+                'start_date' => $lease->start_date->toDateString(),
+                'duration' => $lease->duration->value,
+                'monthly_price' => (float) $lease->monthly_price,
+                'deposit' => (float) $lease->deposit,
+                'notes' => $lease->notes,
+            ],
+            'rooms' => Room::query()
+                ->where('status', RoomStatus::Available->value)
+                ->orWhere('id', $lease->room_id)
+                ->orderBy('room_number')
+                ->get(['id', 'room_number', 'price']),
+            'tenants' => Tenant::query()->orderBy('name')->get(['id', 'name', 'nik']),
+            'durations' => array_map(fn ($d) => ['value' => $d->value, 'label' => $d->label(), 'months' => $d->months()], LeaseDuration::cases()),
+        ]);
+    }
+
+    public function update(UpdateLeaseRequest $request, Lease $lease, UpdateLeaseAction $action): RedirectResponse
+    {
+        $this->authorize('update', $lease);
+
+        try {
+            $action->execute($lease, LeaseData::fromArray($request->validated()));
+        } catch (Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('leases.show', $lease)->with('success', 'Kontrak berhasil diperbarui.');
     }
 
     public function show(Lease $lease): Response

@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::get('leases', [LeaseController::class, 'index'])->name('leases.index');
     Route::get('leases/create', [LeaseController::class, 'create'])->name('leases.create');
     Route::post('leases', [LeaseController::class, 'store'])->name('leases.store');
+    Route::get('leases/{lease}/edit', [LeaseController::class, 'edit'])->name('leases.edit');
+    Route::put('leases/{lease}', [LeaseController::class, 'update'])->name('leases.update');
     Route::get('leases/{lease}', [LeaseController::class, 'show'])->name('leases.show');
     Route::post('leases/{lease}/end', [LeaseController::class, 'end'])->name('leases.end');
 
@@ -41,6 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/create', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('payments', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::delete('payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');

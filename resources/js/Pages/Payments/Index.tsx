@@ -1,11 +1,17 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Badge, Button, Card, EmptyState, PageHeader, Pagination, Segmented } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
 import type { Paginated, Payment } from '@/types';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 export default function Index({ payments }: { payments: Paginated<Payment> }) {
+    const hapus = (p: Payment) => {
+        if (confirm(`Hapus pembayaran ${rupiah(p.amount)} (${p.invoice?.invoice_number ?? '-'})? Tagihan akan dihitung ulang.`)) {
+            router.delete(`/payments/${p.id}`);
+        }
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title="Pembayaran" />
@@ -28,7 +34,9 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                                         <p className="truncate font-semibold text-slate-800">{p.invoice?.lease?.tenant?.name ?? '-'} · {p.method}</p>
                                         <p className="truncate text-sm text-slate-500">{p.invoice?.invoice_number ?? '-'} · {tanggal(p.paid_at)}</p>
                                     </div>
-                                    <span className="font-bold text-emerald-600">{rupiah(p.amount)}</span>
+                                    <span className="mr-1 font-bold text-emerald-600">{rupiah(p.amount)}</span>
+                                    <Link href={`/payments/${p.id}/edit`} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 active:bg-slate-100" title="Edit"><Pencil size={16} /></Link>
+                                    <button onClick={() => hapus(p)} className="grid h-9 w-9 place-items-center rounded-lg text-rose-500 active:bg-rose-50" title="Hapus"><Trash2 size={16} /></button>
                                 </li>
                             ))}
                         </ul>
@@ -37,7 +45,7 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                         <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full text-sm">
                                 <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-                                    <tr><th className="px-4 py-3">Tanggal</th><th className="px-4 py-3">Invoice</th><th className="px-4 py-3">Penghuni</th><th className="px-4 py-3">Metode</th><th className="px-4 py-3">Nominal</th></tr>
+                                    <tr><th className="px-4 py-3">Tanggal</th><th className="px-4 py-3">Invoice</th><th className="px-4 py-3">Penghuni</th><th className="px-4 py-3">Metode</th><th className="px-4 py-3">Nominal</th><th className="px-4 py-3 text-right">Aksi</th></tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {payments.data.map((p) => (
@@ -49,6 +57,12 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                                             <td className="px-4 py-3">{p.invoice?.lease?.tenant?.name ?? '-'}</td>
                                             <td className="px-4 py-3"><Badge status="paid" label={p.method} /></td>
                                             <td className="px-4 py-3 font-semibold text-emerald-600">{rupiah(p.amount)}</td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <Link href={`/payments/${p.id}/edit`} className="text-brand-600 hover:underline">Edit</Link>
+                                                    <button onClick={() => hapus(p)} className="text-rose-600 hover:underline">Hapus</button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

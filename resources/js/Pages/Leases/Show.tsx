@@ -43,8 +43,9 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                 title={`Kontrak ${lease.tenant?.name}`}
                 subtitle={`Kamar ${lease.room?.room_number}`}
                 action={
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <Link href="/leases"><SecondaryButton>Kembali</SecondaryButton></Link>
+                        <Link href={`/leases/${lease.id}/edit`}><SecondaryButton>Edit</SecondaryButton></Link>
                         {lease.status === 'active' && (
                             <Button onClick={() => setShowCheckout(true)} className="bg-rose-600 hover:bg-rose-700">Akhiri & Check-out</Button>
                         )}

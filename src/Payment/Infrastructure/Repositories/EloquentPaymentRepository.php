@@ -34,6 +34,18 @@ final class EloquentPaymentRepository implements PaymentRepositoryInterface
         ]);
     }
 
+    public function update(Payment $payment, array $data): Payment
+    {
+        $payment->update($data);
+
+        return $payment->refresh();
+    }
+
+    public function delete(Payment $payment): void
+    {
+        $payment->delete();
+    }
+
     public function sumForInvoice(int $invoiceId): string
     {
         return (string) Payment::query()->where('invoice_id', $invoiceId)->sum('amount');
