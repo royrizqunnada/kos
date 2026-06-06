@@ -29,15 +29,19 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                         {/* Mobile: kartu */}
                         <ul className="divide-y divide-slate-100 lg:hidden">
                             {payments.data.map((p) => (
-                                <li key={p.id} className="flex items-center gap-3 px-4 py-3">
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate font-semibold text-slate-800">{p.invoice?.lease?.tenant?.name ?? '-'} · {p.method}</p>
-                                        <p className="truncate text-sm text-slate-500">{p.invoice?.invoice_number ?? '-'} · {tanggal(p.paid_at)}</p>
+                                <li key={p.id} className="px-4 py-3">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-semibold text-slate-800">{p.invoice?.lease?.tenant?.name ?? '-'}</p>
+                                            <p className="mt-0.5 text-xs text-slate-500">{p.invoice?.invoice_number ?? '-'} · {tanggal(p.paid_at)} · {p.method}</p>
+                                        </div>
+                                        <span className="shrink-0 font-bold text-emerald-600">{rupiah(p.amount)}</span>
                                     </div>
-                                    <span className="mr-1 font-bold text-emerald-600">{rupiah(p.amount)}</span>
-                                    <Link href={`/payments/${p.id}/kwitansi`} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 active:bg-slate-100" title="Kwitansi"><Receipt size={16} /></Link>
-                                    <Link href={`/payments/${p.id}/edit`} className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 active:bg-slate-100" title="Edit"><Pencil size={16} /></Link>
-                                    <button onClick={() => hapus(p)} className="grid h-9 w-9 place-items-center rounded-lg text-rose-500 active:bg-rose-50" title="Hapus"><Trash2 size={16} /></button>
+                                    <div className="mt-2.5 flex items-center gap-2">
+                                        <Link href={`/payments/${p.id}/kwitansi`} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 active:bg-slate-100"><Receipt size={14} /> Kwitansi</Link>
+                                        <Link href={`/payments/${p.id}/edit`} className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 active:bg-slate-100"><Pencil size={14} /> Edit</Link>
+                                        <button onClick={() => hapus(p)} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 active:bg-rose-50"><Trash2 size={14} /> Hapus</button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
