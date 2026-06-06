@@ -55,7 +55,7 @@ final readonly class DashboardService
     {
         $items = collect();
 
-        Payment::query()->with('invoice.lease.tenant')->latest('paid_at')->take(5)->get()
+        Payment::query()->with(['invoice.lease.tenant', 'invoice.lease.room'])->latest('paid_at')->take(5)->get()
             ->each(fn (Payment $p) => $items->push([
                 'type' => 'payment',
                 'title' => $p->invoice?->lease?->tenant?->name ?? 'Pembayaran',
