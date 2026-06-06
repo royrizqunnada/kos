@@ -39,12 +39,15 @@ export default function Index({ invoices, filters, statuses, outstandingTotal }:
                         <ul className="divide-y divide-slate-100 lg:hidden">
                             {invoices.data.map((inv) => (
                                 <li key={inv.id}>
-                                    <Link href={`/invoices/${inv.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
+                                    <Link href={`/invoices/${inv.id}`} className="flex items-start justify-between gap-3 px-4 py-3 active:bg-slate-50">
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-semibold text-slate-800">{inv.invoice_number} · {inv.lease?.tenant?.name}</p>
-                                            <p className="truncate text-sm text-slate-500">Jatuh tempo {tanggal(inv.due_date)} · {rupiah(inv.amount)}</p>
+                                            <p className="font-semibold text-slate-800">{inv.lease?.tenant?.name ?? '-'}</p>
+                                            <p className="mt-0.5 text-xs text-slate-500">{inv.invoice_number} · jatuh tempo {tanggal(inv.due_date)}</p>
                                         </div>
-                                        <Badge status={inv.status} label={statusLabel(inv)} />
+                                        <div className="shrink-0 text-right">
+                                            <p className="font-bold text-slate-800">{rupiah(inv.amount)}</p>
+                                            <span className="mt-1 inline-block"><Badge status={inv.status} label={statusLabel(inv)} /></span>
+                                        </div>
                                     </Link>
                                 </li>
                             ))}

@@ -46,7 +46,23 @@ export default function Index({ expenses, filters, categories }: Props) {
                         </Select>
                     </div>
                     {expenses.data.length === 0 ? <EmptyState message="Belum ada pengeluaran." /> : (
-                        <div className="overflow-x-auto">
+                        <>
+                        {/* Mobile: kartu */}
+                        <ul className="divide-y divide-slate-100 lg:hidden">
+                            {expenses.data.map((ex) => (
+                                <li key={ex.id} className="flex items-start justify-between gap-3 px-4 py-3">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-semibold text-slate-800">{ex.description || categories.find((c) => c.value === ex.category)?.label}</p>
+                                        <p className="mt-0.5 text-xs text-slate-500 capitalize">{categories.find((c) => c.value === ex.category)?.label} · {tanggal(ex.spent_at)}</p>
+                                    </div>
+                                    <span className="shrink-0 font-bold text-rose-600">{rupiah(ex.amount)}</span>
+                                    <button onClick={() => confirm('Hapus pengeluaran ini?') && router.delete(`/expenses/${ex.id}`)} className="shrink-0 text-slate-400 active:text-rose-600"><Trash2 size={16} /></button>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* Desktop: tabel */}
+                        <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full text-sm">
                                 <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
                                     <tr><th className="px-4 py-3">Tanggal</th><th className="px-4 py-3">Kategori</th><th className="px-4 py-3">Deskripsi</th><th className="px-4 py-3">Nominal</th><th className="px-4 py-3"></th></tr>
@@ -66,6 +82,7 @@ export default function Index({ expenses, filters, categories }: Props) {
                                 </tbody>
                             </table>
                         </div>
+                        </>
                     )}
                     <Pagination paginator={expenses} />
                 </Card>
