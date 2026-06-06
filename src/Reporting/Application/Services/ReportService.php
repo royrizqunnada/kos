@@ -17,35 +17,42 @@ final class ReportService
 {
     /**
      * Pendapatan sesuai masa sewa (accrual): uang yang sudah dibayar pada tiap tagihan
-     * disebar rata ke periode yang dicover tagihan itu. Bayar 3 bulan di muka otomatis
-     * terbagi ke 3 bulan, jadi angka "bulan ini" tetap kebaca walau bayarnya sekaligus.
+     * dibagi rata per BULAN kalender yang dicover tagihan itu. Bayar 3 bulan di muka
+     * otomatis jadi 1/3 tiap bulan (bersih sesuai harga sewa bulanan), jadi angka
+     * "bulan ini" tetap kebaca walau bayarnya sekaligus di awal.
      */
     public function income(CarbonImmutable $from, CarbonImmutable $to): float
     {
-        $rangeStart = $from->startOfDay();
-        $rangeEnd = $to->startOfDay();
+        $rangeFromMonth = $from->startOfMonth();
+        $rangeToMonth = $to->startOfMonth();
 
         return (float) Invoice::query()
             ->where('paid_amount', '>', 0)
-            ->whereDate('period_start', '<=', $rangeEnd->toDateString())
-            ->whereDate('period_end', '>=', $rangeStart->toDateString())
+            ->whereDate('period_start', '<=', $to->toDateString())
+            ->whereDate('period_end', '>=', $from->toDateString())
             ->get(['paid_amount', 'period_start', 'period_end'])
-            ->sum(function (Invoice $invoice) use ($rangeStart, $rangeEnd): float {
+            ->sum(function (Invoice $invoice) use ($rangeFromMonth, $rangeToMonth): float {
                 $paid = (float) $invoice->paid_amount;
-                $start = $invoice->period_start->startOfDay();
-                $end = $invoice->period_end->startOfDay();
 
-                // Jumlah hari periode tagihan (inklusif). Aman bila periode 1 hari.
-                $totalDays = (int) $start->diffInDays($end) + 1;
-                if ($totalDays <= 1) {
-                    return $paid;
+                // Hitung bulan kalender yang dicover periode tagihan, sekaligus
+                // berapa di antaranya yang masuk rentang yang diminta.
+                $first = $invoice->period_start->startOfMonth();
+                $last = $invoice->period_end->startOfMonth();
+
+                $totalMonths = 0;
+                $monthsInRange = 0;
+                for ($month = $first; $month->lessThanOrEqualTo($last); $month = $month->addMonth()) {
+                    $totalMonths++;
+                    if ($month->greaterThanOrEqualTo($rangeFromMonth) && $month->lessThanOrEqualTo($rangeToMonth)) {
+                        $monthsInRange++;
+                    }
                 }
 
-                $overlapStart = $start->greaterThan($rangeStart) ? $start : $rangeStart;
-                $overlapEnd = $end->lessThan($rangeEnd) ? $end : $rangeEnd;
-                $overlapDays = (int) $overlapStart->diffInDays($overlapEnd) + 1;
+                if ($totalMonths === 0) {
+                    return 0.0;
+                }
 
-                return $paid * max(0, $overlapDays) / $totalDays;
+                return $paid * $monthsInRange / $totalMonths;
             });
     }
 

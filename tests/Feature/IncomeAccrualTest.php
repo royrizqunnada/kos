@@ -23,20 +23,19 @@ it('spreads a prepaid multi-month invoice across the months it covers', function
     $quarter = $reports->income(CarbonImmutable::create(2026, 4, 1), CarbonImmutable::create(2026, 6, 30));
     $january = $reports->income(CarbonImmutable::create(2026, 1, 1), CarbonImmutable::create(2026, 1, 31));
 
-    // Tiap bulan dalam periode dapat porsi (> 0), bukan numpuk di satu bulan.
-    expect($april)->toBeGreaterThan(0.0)
-        ->and($may)->toBeGreaterThan(0.0)
-        ->and($june)->toBeGreaterThan(0.0);
+    // Tiap bulan dapat porsi BERSIH 1/3 (Rp 1.000.000), bukan belang per hari.
+    expect($april)->toBe(1_000_000.0)
+        ->and($may)->toBe(1_000_000.0)
+        ->and($june)->toBe(1_000_000.0);
 
     // Bulan di luar periode = 0.
     expect($january)->toBe(0.0);
 
-    // Total seluruh periode = jumlah dibayar (toleransi pembulatan harian).
-    expect($quarter)->toBeGreaterThan(2_999_999.0)
-        ->and($quarter)->toBeLessThan(3_000_001.0);
+    // Total seluruh periode = jumlah dibayar.
+    expect($quarter)->toBe(3_000_000.0);
 
     // Penjumlahan per bulan juga utuh.
-    expect($april + $may + $june)->toEqualWithDelta(3_000_000.0, 1.0);
+    expect($april + $may + $june)->toBe(3_000_000.0);
 });
 
 it('ignores unpaid invoices', function () {
