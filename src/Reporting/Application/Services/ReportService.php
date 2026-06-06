@@ -17,47 +17,37 @@ use Src\Room\Domain\Models\Room;
 final class ReportService
 {
     /**
-     * PENDAPATAN (Revenue Recognition) — alokasi pembayaran per BULAN SEWA, bukan prorata hari.
+     * PENDAPATAN (Revenue Recognition) — harga sewa bulanan tiap kontrak yang AKTIF di bulan itu.
      *
-     * Pembayaran tiap tagihan dibagi rata sesuai JUMLAH BULAN SEWA (durasi), lalu tiap
-     * bulan sewa diakui PENUH di bulan kalender tanggal mulainya. Contoh kontrak 3 bulan
-     * 20 Mar–19 Jun, sewa Rp1.5jt → Maret 1.5jt, April 1.5jt, Mei 1.5jt (Juni 0).
-     * TIDAK ada prorata harian & tidak dibagi jumlah hari/bulan kalender yang tersentuh.
+     * Tiap bulan kalender yang masih disentuh masa sewa kontrak diakui PENUH sebesar harga
+     * sewa bulanan. Tanpa prorata harian, tanpa dibagi jumlah hari. Kontrak 20 Mar–19 Jun
+     * (Rp1.5jt) tetap diakui Rp1.5jt selama Mar, Apr, Mei, Jun (selama penghuni masih ngekos).
+     * Pengakuan ini lepas dari pembayaran (akrual) — kas masuk dihitung terpisah di paymentIncome().
      */
     public function income(CarbonImmutable $from, CarbonImmutable $to): float
     {
         $rangeFromMonth = $from->startOfMonth();
         $rangeToMonth = $to->startOfMonth();
 
-        return (float) Invoice::query()
-            ->where('paid_amount', '>', 0)
-            ->whereDate('period_start', '<=', $to->toDateString())
-            ->whereDate('period_end', '>=', $from->toDateString())
-            ->get(['paid_amount', 'period_start', 'period_end'])
-            ->sum(function (Invoice $invoice) use ($rangeFromMonth, $rangeToMonth): float {
-                $paid = (float) $invoice->paid_amount;
-                // toImmutable: cast 'date' Laravel mengembalikan Carbon mutable; tanpa ini
-                // addMonths() akan mengubah $start tiap iterasi (hitungan bulan jadi kacau).
-                $start = $invoice->period_start->toImmutable();
-                $periodEnd = $invoice->period_end->toImmutable();
+        return (float) Lease::query()
+            ->whereIn('status', [LeaseStatus::Active->value, LeaseStatus::Ended->value])
+            ->whereDate('start_date', '<=', $to->toDateString())
+            ->whereDate('end_date', '>=', $from->toDateString())
+            ->get(['monthly_price', 'start_date', 'end_date'])
+            ->sum(function (Lease $lease) use ($rangeFromMonth, $rangeToMonth): float {
+                $monthly = (float) $lease->monthly_price;
+                // toImmutable agar addMonth() tidak mengubah variabel aslinya tiap iterasi.
+                $monthCursor = $lease->start_date->toImmutable()->startOfMonth();
+                $lastMonth = $lease->end_date->toImmutable()->startOfMonth();
 
-                // Tiap bulan sewa = tanggal mulai + k bulan (anniversary), diakui di bulan
-                // kalender tanggal itu. Kontrak 3 bulan tetap 3 bulan walau lintas 4 kalender.
-                $totalMonths = 0;
-                $monthsInRange = 0;
-                for ($k = 0; $k < 600; $k++) {
-                    $anniversary = $start->addMonths($k);
-                    if ($anniversary->greaterThan($periodEnd)) {
-                        break;
-                    }
-                    $totalMonths++;
-                    $bucket = $anniversary->startOfMonth();
-                    if ($bucket->greaterThanOrEqualTo($rangeFromMonth) && $bucket->lessThanOrEqualTo($rangeToMonth)) {
-                        $monthsInRange++;
+                $months = 0;
+                for ($m = $monthCursor; $m->lessThanOrEqualTo($lastMonth); $m = $m->addMonth()) {
+                    if ($m->greaterThanOrEqualTo($rangeFromMonth) && $m->lessThanOrEqualTo($rangeToMonth)) {
+                        $months++;
                     }
                 }
 
-                return $totalMonths === 0 ? 0.0 : $paid * $monthsInRange / $totalMonths;
+                return $monthly * $months;
             });
     }
 
