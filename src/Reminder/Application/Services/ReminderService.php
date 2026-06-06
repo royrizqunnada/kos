@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Src\Reminder\Application\Services;
 
-use Illuminate\Support\Facades\Mail;
 use Src\Invoice\Domain\Models\Invoice;
-use Src\Reminder\Application\Mail\InvoiceReminderMail;
 use Src\Reminder\Application\Services\WhatsApp\WhatsAppDriver;
 use Src\Reminder\Domain\Enums\ReminderChannel;
 use Src\Reminder\Domain\Enums\ReminderStatus;
@@ -25,7 +23,8 @@ final readonly class ReminderService
         $tenant = $invoice->lease->tenant;
         $vars = $this->variables($invoice);
 
-        foreach (ReminderChannel::cases() as $channel) {
+        // Hanya kanal WhatsApp (email tidak digunakan).
+        foreach ([ReminderChannel::WhatsApp] as $channel) {
             if ($this->alreadySent($invoice->id, $channel, $offsetDays)) {
                 continue;
             }
@@ -50,15 +49,10 @@ final readonly class ReminderService
             try {
                 $body = $template->render($vars);
 
-                if ($channel === ReminderChannel::WhatsApp && $tenant->phone) {
+                if ($tenant->phone) {
                     $this->whatsapp->send($tenant->phone, $body);
-                } elseif ($channel === ReminderChannel::Email && $tenant->email) {
-                    $subject = $template->subject
-                        ? strtr($template->subject, $this->mailVars($vars))
-                        : 'Pengingat Tagihan Kos';
-                    Mail::to($tenant->email)->send(new InvoiceReminderMail($subject, $body));
                 } else {
-                    $log->update(['status' => ReminderStatus::Failed->value, 'error' => 'Kontak tidak tersedia']);
+                    $log->update(['status' => ReminderStatus::Failed->value, 'error' => 'Nomor WhatsApp tidak tersedia']);
 
                     continue;
                 }
@@ -93,13 +87,4 @@ final readonly class ReminderService
         ];
     }
 
-    private function mailVars(array $vars): array
-    {
-        $out = [];
-        foreach ($vars as $k => $v) {
-            $out['{'.$k.'}'] = $v;
-        }
-
-        return $out;
-    }
 }

@@ -16,18 +16,13 @@ class ReminderTemplateSeeder extends Seeder
             "No. Invoice: {invoice_number}\nJatuh tempo: {due_date}\n".
             "Nominal: Rp {amount}\nSisa tagihan: Rp {outstanding}\nTerima kasih.";
 
-        $emailBody = "Yth. {tenant_name},\n\nTagihan sewa kamar {room_number} (Invoice {invoice_number}) ".
-            "jatuh tempo pada {due_date}.\nNominal: Rp {amount}\nSisa: Rp {outstanding}\n\nHormat kami,\nPengelola Kos";
+        // Hanya kanal WhatsApp; bersihkan sisa template email lama bila ada.
+        ReminderTemplate::query()->where('channel', ReminderChannel::Email->value)->delete();
 
         foreach (config('kos.reminder_offsets') as $offset) {
             ReminderTemplate::query()->updateOrCreate(
                 ['channel' => ReminderChannel::WhatsApp->value, 'offset_days' => $offset],
                 ['subject' => null, 'body' => $waBody, 'is_active' => true]
-            );
-
-            ReminderTemplate::query()->updateOrCreate(
-                ['channel' => ReminderChannel::Email->value, 'offset_days' => $offset],
-                ['subject' => 'Pengingat Tagihan Kos - {invoice_number}', 'body' => $emailBody, 'is_active' => true]
             );
         }
     }

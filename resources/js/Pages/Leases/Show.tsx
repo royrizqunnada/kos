@@ -55,26 +55,26 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                 <div className="space-y-6 lg:col-span-1">
                     <Card className="p-6">
                         <dl className="space-y-2 text-sm">
-                            <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Status</dt><dd><Badge status={lease.status} label={lease.status} /></dd></div>
-                            <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Mulai</dt><dd>{tanggal(lease.start_date)}</dd></div>
-                            <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Berakhir</dt><dd>{tanggal(lease.end_date)}</dd></div>
-                            <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Harga/bln</dt><dd>{rupiah(lease.monthly_price)}</dd></div>
-                            <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Deposit</dt><dd>{rupiah(lease.deposit)}</dd></div>
+                            <div className="flex justify-between"><dt className="text-slate-500">Status</dt><dd><Badge status={lease.status} label={lease.status} /></dd></div>
+                            <div className="flex justify-between"><dt className="text-slate-500">Mulai</dt><dd>{tanggal(lease.start_date)}</dd></div>
+                            <div className="flex justify-between"><dt className="text-slate-500">Berakhir</dt><dd>{tanggal(lease.end_date)}</dd></div>
+                            <div className="flex justify-between"><dt className="text-slate-500">Harga/bln</dt><dd>{rupiah(lease.monthly_price)}</dd></div>
+                            <div className="flex justify-between"><dt className="text-slate-500">Deposit</dt><dd>{rupiah(lease.deposit)}</dd></div>
                             {tunggakan > 0 && lease.status === 'active' && (
-                                <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Tunggakan</dt><dd className="font-semibold text-rose-600">{rupiah(outstanding)}</dd></div>
+                                <div className="flex justify-between"><dt className="text-slate-500">Tunggakan</dt><dd className="font-semibold text-rose-600">{rupiah(outstanding)}</dd></div>
                             )}
                         </dl>
                     </Card>
 
                     {lease.status === 'ended' && (
                         <Card className="p-6">
-                            <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">Penyelesaian Check-out</h2>
+                            <h2 className="mb-3 text-sm font-semibold text-slate-700">Penyelesaian Check-out</h2>
                             <dl className="space-y-2 text-sm">
-                                <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Tanggal keluar</dt><dd>{tanggal(lease.ended_at)}</dd></div>
-                                <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Deposit dikembalikan</dt><dd className="font-semibold text-emerald-700">{rupiah(lease.deposit_refunded)}</dd></div>
-                                <div className="flex justify-between"><dt className="text-slate-500 dark:text-slate-400">Potongan</dt><dd>{rupiah(lease.deposit_deduction)}</dd></div>
+                                <div className="flex justify-between"><dt className="text-slate-500">Tanggal keluar</dt><dd>{tanggal(lease.ended_at)}</dd></div>
+                                <div className="flex justify-between"><dt className="text-slate-500">Deposit dikembalikan</dt><dd className="font-semibold text-emerald-700">{rupiah(lease.deposit_refunded)}</dd></div>
+                                <div className="flex justify-between"><dt className="text-slate-500">Potongan</dt><dd>{rupiah(lease.deposit_deduction)}</dd></div>
                                 {lease.checkout_notes && (
-                                    <div className="pt-2"><dt className="text-slate-500 dark:text-slate-400">Catatan</dt><dd className="mt-1 text-slate-700 dark:text-slate-300">{lease.checkout_notes}</dd></div>
+                                    <div className="pt-2"><dt className="text-slate-500">Catatan</dt><dd className="mt-1 text-slate-700">{lease.checkout_notes}</dd></div>
                                 )}
                             </dl>
                         </Card>
@@ -82,10 +82,10 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                 </div>
 
                 <Card className="p-6 lg:col-span-2">
-                    <h2 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">Tagihan</h2>
+                    <h2 className="mb-3 text-sm font-semibold text-slate-700">Tagihan</h2>
                     <div className="space-y-2">
                         {(lease.invoices ?? []).map((inv) => (
-                            <Link key={inv.id} href={`/invoices/${inv.id}`} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50">
+                            <Link key={inv.id} href={`/invoices/${inv.id}`} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm hover:bg-slate-50">
                                 <span>{inv.invoice_number} · jatuh tempo {tanggal(inv.due_date)}</span>
                                 <span className="flex items-center gap-3"><span>{rupiah(inv.amount)}</span><Badge status={inv.status} label={inv.status} /></span>
                             </Link>
@@ -99,8 +99,8 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={() => setShowCheckout(false)}>
                     <Card className="w-full max-w-md p-6" >
                         <div onClick={(e) => e.stopPropagation()}>
-                            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Akhiri Kontrak & Check-out</h2>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{lease.tenant?.name} · Kamar {lease.room?.room_number}</p>
+                            <h2 className="text-lg font-bold text-slate-900">Akhiri Kontrak & Check-out</h2>
+                            <p className="mt-1 text-sm text-slate-500">{lease.tenant?.name} · Kamar {lease.room?.room_number}</p>
 
                             {tunggakan > 0 && (
                                 <div className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -112,8 +112,8 @@ export default function Show({ lease, outstanding }: { lease: Lease; outstanding
                                 <Field label="Tanggal keluar" error={form.errors.ended_at}>
                                     <Input type="date" value={form.data.ended_at} onChange={(e) => form.setData('ended_at', e.target.value)} />
                                 </Field>
-                                <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm dark:bg-slate-800/60">
-                                    <div className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Deposit diterima</span><span className="font-semibold">{rupiah(lease.deposit)}</span></div>
+                                <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                                    <div className="flex justify-between"><span className="text-slate-500">Deposit diterima</span><span className="font-semibold">{rupiah(lease.deposit)}</span></div>
                                 </div>
                                 <Field label="Potongan (kerusakan / tunggakan)" error={form.errors.deposit_deduction}>
                                     <Input type="number" min={0} step="1000" value={form.data.deposit_deduction} onChange={(e) => setDeduction(Number(e.target.value))} />

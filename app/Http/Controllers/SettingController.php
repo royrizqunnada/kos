@@ -18,7 +18,7 @@ class SettingController extends Controller
         abort_unless(request()->user()->can('setting.update') || request()->user()->hasRole('super_admin'), 403);
 
         return Inertia::render('Settings/Index', [
-            'templates' => ReminderTemplate::query()->orderBy('channel')->orderBy('offset_days')->get(),
+            'templates' => ReminderTemplate::query()->where('channel', 'whatsapp')->orderBy('offset_days')->get(),
             'variables' => ['{tenant_name}', '{room_number}', '{invoice_number}', '{due_date}', '{amount}', '{outstanding}'],
         ]);
     }

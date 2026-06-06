@@ -21,14 +21,14 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                 ) : (
                     <>
                         {/* Mobile: kartu */}
-                        <ul className="divide-y divide-slate-100 lg:hidden dark:divide-slate-800">
+                        <ul className="divide-y divide-slate-100 lg:hidden">
                             {payments.data.map((p) => (
                                 <li key={p.id} className="flex items-center gap-3 px-4 py-3">
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate font-semibold text-slate-800 dark:text-slate-100">{p.invoice?.lease?.tenant?.name ?? '-'} · {p.method}</p>
-                                        <p className="truncate text-sm text-slate-500 dark:text-slate-400">{p.invoice?.invoice_number ?? '-'} · {tanggal(p.paid_at)}</p>
+                                        <p className="truncate font-semibold text-slate-800">{p.invoice?.lease?.tenant?.name ?? '-'} · {p.method}</p>
+                                        <p className="truncate text-sm text-slate-500">{p.invoice?.invoice_number ?? '-'} · {tanggal(p.paid_at)}</p>
                                     </div>
-                                    <span className="font-bold text-emerald-600 dark:text-emerald-400">{rupiah(p.amount)}</span>
+                                    <span className="font-bold text-emerald-600">{rupiah(p.amount)}</span>
                                 </li>
                             ))}
                         </ul>
@@ -36,19 +36,19 @@ export default function Index({ payments }: { payments: Paginated<Payment> }) {
                         {/* Desktop: tabel */}
                         <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full text-sm">
-                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
+                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
                                     <tr><th className="px-4 py-3">Tanggal</th><th className="px-4 py-3">Invoice</th><th className="px-4 py-3">Penghuni</th><th className="px-4 py-3">Metode</th><th className="px-4 py-3">Nominal</th></tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tbody className="divide-y divide-slate-100">
                                     {payments.data.map((p) => (
-                                        <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{tanggal(p.paid_at)}</td>
+                                        <tr key={p.id} className="hover:bg-slate-50">
+                                            <td className="px-4 py-3 text-slate-500">{tanggal(p.paid_at)}</td>
                                             <td className="px-4 py-3 font-mono text-xs">
-                                                {p.invoice ? <Link href={`/invoices/${p.invoice.id}`} className="text-brand-600 hover:underline dark:text-brand-400">{p.invoice.invoice_number}</Link> : '-'}
+                                                {p.invoice ? <Link href={`/invoices/${p.invoice.id}`} className="text-brand-600 hover:underline">{p.invoice.invoice_number}</Link> : '-'}
                                             </td>
-                                            <td className="px-4 py-3 dark:text-slate-300">{p.invoice?.lease?.tenant?.name ?? '-'}</td>
+                                            <td className="px-4 py-3">{p.invoice?.lease?.tenant?.name ?? '-'}</td>
                                             <td className="px-4 py-3"><Badge status="paid" label={p.method} /></td>
-                                            <td className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400">{rupiah(p.amount)}</td>
+                                            <td className="px-4 py-3 font-semibold text-emerald-600">{rupiah(p.amount)}</td>
                                         </tr>
                                     ))}
                                 </tbody>

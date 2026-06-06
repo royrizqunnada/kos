@@ -35,7 +35,7 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
             <Segmented items={[{ label: 'Kamar', href: '/rooms' }, { label: 'Penghuni', href: '/tenants' }]} />
 
             <Card>
-                <div className="flex flex-wrap gap-3 border-b border-slate-100 p-4 dark:border-slate-800">
+                <div className="flex flex-wrap gap-3 border-b border-slate-100 p-4">
                     <Input
                         placeholder="Cari nomor kamar…"
                         value={data.search}
@@ -58,14 +58,14 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
                 ) : (
                     <>
                         {/* Mobile: kartu */}
-                        <ul className="divide-y divide-slate-100 lg:hidden dark:divide-slate-800">
+                        <ul className="divide-y divide-slate-100 lg:hidden">
                             {rooms.data.map((room) => (
                                 <li key={room.id}>
-                                    <Link href={`/rooms/${room.id}/edit`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50 dark:active:bg-slate-800/50">
-                                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700 dark:bg-brand-600/15 dark:text-brand-300">{room.room_number}</div>
+                                    <Link href={`/rooms/${room.id}/edit`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
+                                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">{room.room_number}</div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-semibold text-slate-800 dark:text-slate-100">Kamar {room.room_number} · {typeLabel(room)}</p>
-                                            <p className="truncate text-sm text-slate-500 dark:text-slate-400">{rupiah(room.price)}/bln</p>
+                                            <p className="truncate font-semibold text-slate-800">Kamar {room.room_number} · {typeLabel(room)}</p>
+                                            <p className="truncate text-sm text-slate-500">{rupiah(room.price)}/bln</p>
                                         </div>
                                         <Badge status={room.status} label={statusLabel(room)} />
                                     </Link>
@@ -76,7 +76,7 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
                         {/* Desktop: tabel */}
                         <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full text-sm">
-                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
+                                <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
                                     <tr>
                                         <th className="px-4 py-3">Nomor</th>
                                         <th className="px-4 py-3">Tipe</th>
@@ -86,16 +86,16 @@ export default function Index({ rooms, filters, statuses, types }: Props) {
                                         <th className="px-4 py-3"></th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tbody className="divide-y divide-slate-100">
                                     {rooms.data.map((room) => (
-                                        <tr key={room.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                            <td className="px-4 py-3 font-semibold text-slate-800 dark:text-slate-100">{room.room_number}</td>
-                                            <td className="px-4 py-3 dark:text-slate-300">{typeLabel(room)}</td>
-                                            <td className="px-4 py-3 dark:text-slate-300">{rupiah(room.price)}</td>
+                                        <tr key={room.id} className="hover:bg-slate-50">
+                                            <td className="px-4 py-3 font-semibold text-slate-800">{room.room_number}</td>
+                                            <td className="px-4 py-3">{typeLabel(room)}</td>
+                                            <td className="px-4 py-3">{rupiah(room.price)}</td>
                                             <td className="px-4 py-3"><Badge status={room.status} label={statusLabel(room)} /></td>
-                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{(room.facilities ?? []).slice(0, 3).join(', ')}</td>
+                                            <td className="px-4 py-3 text-slate-500">{(room.facilities ?? []).slice(0, 3).join(', ')}</td>
                                             <td className="px-4 py-3 text-right">
-                                                <Link href={`/rooms/${room.id}/edit`} className="text-brand-600 hover:underline dark:text-brand-400">Edit</Link>
+                                                <Link href={`/rooms/${room.id}/edit`} className="text-brand-600 hover:underline">Edit</Link>
                                             </td>
                                         </tr>
                                     ))}
