@@ -17,12 +17,12 @@ use Src\Room\Domain\Models\Room;
 final class ReportService
 {
     /**
-     * PENDAPATAN (Revenue Recognition) — alokasi pembayaran per bulan masa sewa.
+     * PENDAPATAN (Revenue Recognition) — alokasi pembayaran per BULAN SEWA, bukan prorata hari.
      *
-     * Nilai pembayaran yang sudah masuk pada tiap tagihan dialokasikan rata ke setiap
-     * BULAN kalender masa sewa tagihan itu. Bayar 6 bulan di muka (Rp6jt) → diakui
-     * Rp1jt/bulan selama 6 bulan, BUKAN Rp6jt di bulan pembayaran. Total revenue
-     * sepanjang waktu = total kas yang diterima, hanya sebarannya yang per bulan.
+     * Pembayaran tiap tagihan dibagi rata sesuai JUMLAH BULAN SEWA (durasi), lalu tiap
+     * bulan sewa diakui PENUH di bulan kalender tanggal mulainya. Contoh kontrak 3 bulan
+     * 20 Mar–19 Jun, sewa Rp1.5jt → Maret 1.5jt, April 1.5jt, Mei 1.5jt (Juni 0).
+     * TIDAK ada prorata harian & tidak dibagi jumlah hari/bulan kalender yang tersentuh.
      */
     public function income(CarbonImmutable $from, CarbonImmutable $to): float
     {
@@ -36,14 +36,23 @@ final class ReportService
             ->get(['paid_amount', 'period_start', 'period_end'])
             ->sum(function (Invoice $invoice) use ($rangeFromMonth, $rangeToMonth): float {
                 $paid = (float) $invoice->paid_amount;
-                $first = $invoice->period_start->startOfMonth();
-                $last = $invoice->period_end->startOfMonth();
+                // toImmutable: cast 'date' Laravel mengembalikan Carbon mutable; tanpa ini
+                // addMonths() akan mengubah $start tiap iterasi (hitungan bulan jadi kacau).
+                $start = $invoice->period_start->toImmutable();
+                $periodEnd = $invoice->period_end->toImmutable();
 
+                // Tiap bulan sewa = tanggal mulai + k bulan (anniversary), diakui di bulan
+                // kalender tanggal itu. Kontrak 3 bulan tetap 3 bulan walau lintas 4 kalender.
                 $totalMonths = 0;
                 $monthsInRange = 0;
-                for ($month = $first; $month->lessThanOrEqualTo($last); $month = $month->addMonth()) {
+                for ($k = 0; $k < 600; $k++) {
+                    $anniversary = $start->addMonths($k);
+                    if ($anniversary->greaterThan($periodEnd)) {
+                        break;
+                    }
                     $totalMonths++;
-                    if ($month->greaterThanOrEqualTo($rangeFromMonth) && $month->lessThanOrEqualTo($rangeToMonth)) {
+                    $bucket = $anniversary->startOfMonth();
+                    if ($bucket->greaterThanOrEqualTo($rangeFromMonth) && $bucket->lessThanOrEqualTo($rangeToMonth)) {
                         $monthsInRange++;
                     }
                 }

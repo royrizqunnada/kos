@@ -7,6 +7,43 @@ use Src\Invoice\Domain\Models\Invoice;
 use Src\Payment\Domain\Models\Payment;
 use Src\Reporting\Application\Services\ReportService;
 
+it('uses rental-months not calendar-day proration for a mid-month contract', function () {
+    // Kontrak 3 bulan 20 Mar – 19 Jun 2026, sewa Rp1.5jt, bayar lunas Rp4.5jt.
+    Invoice::factory()->create([
+        'period_start' => '2026-03-20',
+        'period_end' => '2026-06-19',
+        'amount' => 4_500_000,
+        'paid_amount' => 4_500_000,
+    ]);
+
+    $reports = app(ReportService::class);
+
+    // Tiap bulan sewa penuh Rp1.5jt (bukan 4.5jt/4 = 1.125jt), Juni = 0.
+    expect($reports->income(CarbonImmutable::create(2026, 3, 1), CarbonImmutable::create(2026, 3, 31)))->toBe(1_500_000.0);
+    expect($reports->income(CarbonImmutable::create(2026, 4, 1), CarbonImmutable::create(2026, 4, 30)))->toBe(1_500_000.0);
+    expect($reports->income(CarbonImmutable::create(2026, 5, 1), CarbonImmutable::create(2026, 5, 31)))->toBe(1_500_000.0);
+    expect($reports->income(CarbonImmutable::create(2026, 6, 1), CarbonImmutable::create(2026, 6, 30)))->toBe(0.0);
+});
+
+it('matches the kos business example: 4 contracts = 5.9jt/month, 17.7jt total', function () {
+    // 4 penghuni, kontrak 20 Mar – 19 Jun 2026, bayar lunas 3 bulan di muka.
+    foreach ([1_500_000, 1_400_000, 1_400_000, 1_600_000] as $monthly) {
+        Invoice::factory()->create([
+            'period_start' => '2026-03-20',
+            'period_end' => '2026-06-19',
+            'amount' => $monthly * 3,
+            'paid_amount' => $monthly * 3,
+        ]);
+    }
+
+    $reports = app(ReportService::class);
+
+    // Pendapatan satu bulan = total sewa bulanan = 5.9jt.
+    expect($reports->income(CarbonImmutable::create(2026, 5, 1), CarbonImmutable::create(2026, 5, 31)))->toBe(5_900_000.0);
+    // Pendapatan rentang 3 bulan (Mar–Mei) = seluruhnya = 17.7jt.
+    expect($reports->income(CarbonImmutable::create(2026, 3, 1), CarbonImmutable::create(2026, 5, 31)))->toBe(17_700_000.0);
+});
+
 it('recognises revenue spread per month of the lease period (deferred revenue)', function () {
     // Sewa 6 bulan (1 Jan – 30 Jun 2026), dibayar lunas Rp6.000.000.
     Invoice::factory()->create([
