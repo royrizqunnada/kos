@@ -3,16 +3,17 @@
 declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
-use Src\Invoice\Domain\Models\Invoice;
+use Src\Lease\Domain\Enums\LeaseStatus;
+use Src\Lease\Domain\Models\Lease;
 use Src\Reporting\Application\Services\ReportService;
 
-it('spreads a prepaid multi-month invoice across the months it covers', function () {
-    // Tagihan 3 bulan (Apr–Jun 2026), lunas Rp 3.000.000.
-    Invoice::factory()->create([
-        'period_start' => '2026-04-01',
-        'period_end' => '2026-06-30',
-        'amount' => 3_000_000,
-        'paid_amount' => 3_000_000,
+it('recognises rent per month from active leases, even when paid upfront', function () {
+    // Kontrak 3 bulan (Apr–Jun 2026), sewa Rp 1.000.000/bln.
+    Lease::factory()->create([
+        'start_date' => '2026-04-01',
+        'end_date' => '2026-06-30',
+        'monthly_price' => 1_000_000,
+        'status' => LeaseStatus::Active,
     ]);
 
     $reports = app(ReportService::class);
@@ -23,27 +24,49 @@ it('spreads a prepaid multi-month invoice across the months it covers', function
     $quarter = $reports->income(CarbonImmutable::create(2026, 4, 1), CarbonImmutable::create(2026, 6, 30));
     $january = $reports->income(CarbonImmutable::create(2026, 1, 1), CarbonImmutable::create(2026, 1, 31));
 
-    // Tiap bulan dapat porsi BERSIH 1/3 (Rp 1.000.000), bukan belang per hari.
+    // Tiap bulan masa sewa = harga sewa bulanan (bersih).
     expect($april)->toBe(1_000_000.0)
         ->and($may)->toBe(1_000_000.0)
         ->and($june)->toBe(1_000_000.0);
 
-    // Bulan di luar periode = 0.
+    // Bulan di luar masa sewa = 0.
     expect($january)->toBe(0.0);
 
-    // Total seluruh periode = jumlah dibayar.
+    // Total seluruh masa sewa = sewa × jumlah bulan.
     expect($quarter)->toBe(3_000_000.0);
-
-    // Penjumlahan per bulan juga utuh.
-    expect($april + $may + $june)->toBe(3_000_000.0);
 });
 
-it('ignores unpaid invoices', function () {
-    Invoice::factory()->create([
-        'period_start' => '2026-04-01',
-        'period_end' => '2026-06-30',
-        'amount' => 3_000_000,
-        'paid_amount' => 0,
+it('sums monthly rent across all active leases for a month', function () {
+    foreach ([1_600_000, 1_400_000, 1_500_000, 1_400_000] as $price) {
+        Lease::factory()->create([
+            'start_date' => '2026-03-01',
+            'end_date' => '2026-05-31',
+            'monthly_price' => $price,
+            'status' => LeaseStatus::Active,
+        ]);
+    }
+
+    $mei = app(ReportService::class)->income(
+        CarbonImmutable::create(2026, 5, 1),
+        CarbonImmutable::create(2026, 5, 31),
+    );
+
+    // 1.6 + 1.4 + 1.5 + 1.4 juta = 5,9 juta penuh.
+    expect($mei)->toBe(5_900_000.0);
+});
+
+it('ignores cancelled and pending leases', function () {
+    Lease::factory()->create([
+        'start_date' => '2026-04-01',
+        'end_date' => '2026-06-30',
+        'monthly_price' => 1_000_000,
+        'status' => LeaseStatus::Cancelled,
+    ]);
+    Lease::factory()->create([
+        'start_date' => '2026-04-01',
+        'end_date' => '2026-06-30',
+        'monthly_price' => 1_000_000,
+        'status' => LeaseStatus::Pending,
     ]);
 
     $income = app(ReportService::class)->income(
