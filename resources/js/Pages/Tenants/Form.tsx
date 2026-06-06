@@ -9,7 +9,6 @@ export default function TenantForm({ tenant }: { tenant?: Tenant }) {
         name: tenant?.name ?? '',
         nik: tenant?.nik ?? '',
         phone: tenant?.phone ?? '',
-        email: tenant?.email ?? '',
         address: tenant?.address ?? '',
         emergency_contact_name: tenant?.emergency_contact_name ?? '',
         emergency_contact_phone: tenant?.emergency_contact_phone ?? '',
@@ -27,7 +26,6 @@ export default function TenantForm({ tenant }: { tenant?: Tenant }) {
                 <Field label="Nama Lengkap" error={errors.name}><Input value={data.name} onChange={(e) => setData('name', e.target.value)} /></Field>
                 <Field label="NIK" error={errors.nik}><Input value={data.nik} onChange={(e) => setData('nik', e.target.value)} /></Field>
                 <Field label="Nomor HP" error={errors.phone}><Input value={data.phone} onChange={(e) => setData('phone', e.target.value)} /></Field>
-                <Field label="Email" error={errors.email}><Input type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} /></Field>
             </div>
             <Field label="Alamat" error={errors.address}><Textarea rows={2} value={data.address} onChange={(e) => setData('address', e.target.value)} /></Field>
             <div className="grid gap-5 sm:grid-cols-2">
