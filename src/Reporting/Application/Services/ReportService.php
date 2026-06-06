@@ -10,17 +10,43 @@ use Src\Invoice\Domain\Enums\InvoiceStatus;
 use Src\Invoice\Domain\Models\Invoice;
 use Src\Lease\Domain\Enums\LeaseStatus;
 use Src\Lease\Domain\Models\Lease;
-use Src\Payment\Domain\Models\Payment;
 use Src\Room\Domain\Enums\RoomStatus;
 use Src\Room\Domain\Models\Room;
 
 final class ReportService
 {
+    /**
+     * Pendapatan sesuai masa sewa (accrual): uang yang sudah dibayar pada tiap tagihan
+     * disebar rata ke periode yang dicover tagihan itu. Bayar 3 bulan di muka otomatis
+     * terbagi ke 3 bulan, jadi angka "bulan ini" tetap kebaca walau bayarnya sekaligus.
+     */
     public function income(CarbonImmutable $from, CarbonImmutable $to): float
     {
-        return (float) Payment::query()
-            ->whereBetween('paid_at', [$from->startOfDay(), $to->endOfDay()])
-            ->sum('amount');
+        $rangeStart = $from->startOfDay();
+        $rangeEnd = $to->startOfDay();
+
+        return (float) Invoice::query()
+            ->where('paid_amount', '>', 0)
+            ->whereDate('period_start', '<=', $rangeEnd->toDateString())
+            ->whereDate('period_end', '>=', $rangeStart->toDateString())
+            ->get(['paid_amount', 'period_start', 'period_end'])
+            ->sum(function (Invoice $invoice) use ($rangeStart, $rangeEnd): float {
+                $paid = (float) $invoice->paid_amount;
+                $start = $invoice->period_start->startOfDay();
+                $end = $invoice->period_end->startOfDay();
+
+                // Jumlah hari periode tagihan (inklusif). Aman bila periode 1 hari.
+                $totalDays = (int) $start->diffInDays($end) + 1;
+                if ($totalDays <= 1) {
+                    return $paid;
+                }
+
+                $overlapStart = $start->greaterThan($rangeStart) ? $start : $rangeStart;
+                $overlapEnd = $end->lessThan($rangeEnd) ? $end : $rangeEnd;
+                $overlapDays = (int) $overlapStart->diffInDays($overlapEnd) + 1;
+
+                return $paid * max(0, $overlapDays) / $totalDays;
+            });
     }
 
     public function expense(CarbonImmutable $from, CarbonImmutable $to): float
