@@ -58,6 +58,7 @@ class InvoiceController extends Controller
                 'room_number' => $invoice->lease?->room?->room_number,
             ],
             'kos_name' => config('kos.name'),
+            'kos_tagline' => config('kos.tagline'),
             'kos_owner' => config('kos.owner'),
         ]);
     }

@@ -2,7 +2,8 @@
 
 return [
     // Identitas kos untuk kwitansi & tagihan.
-    'name' => env('KOS_NAME', 'Cozy Corner Student Living In Semarang'),
+    'name' => env('KOS_NAME', 'Cozy Corner'),
+    'tagline' => env('KOS_TAGLINE', 'Student Living In Semarang'),
     'owner' => env('KOS_OWNER', 'Febrina Nuke Kardini'),
 
     // Default reminder day-offsets relative to invoice due date.

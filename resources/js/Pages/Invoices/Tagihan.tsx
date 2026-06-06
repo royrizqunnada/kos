@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { useRef } from 'react';
 import { rupiah, tanggal } from '@/lib/format';
 import ReceiptActions from '@/Components/ReceiptActions';
+import ReceiptHeader from '@/Components/ReceiptHeader';
 
 interface TagihanInvoice {
     id: number;
@@ -18,15 +19,15 @@ interface TagihanInvoice {
     room_number: string | null;
 }
 
-export default function Tagihan({ invoice, kos_name, kos_owner }: { invoice: TagihanInvoice; kos_name: string; kos_owner: string }) {
+export default function Tagihan({ invoice, kos_name, kos_tagline, kos_owner }: { invoice: TagihanInvoice; kos_name: string; kos_tagline: string; kos_owner: string }) {
     const cardRef = useRef<HTMLDivElement>(null);
     const sisa = invoice.amount - invoice.paid_amount;
     const lunas = invoice.status === 'paid' || sisa <= 0;
     const filename = `tagihan-${invoice.invoice_number}.png`.replace(/[/\s]+/g, '-');
 
     const waText = lunas
-        ? `Tagihan ${invoice.invoice_number} (${kos_name}) untuk ${invoice.tenant_name ?? '-'} Kamar ${invoice.room_number ?? '-'} sudah LUNAS. Terima kasih 🙏`
-        : `Halo ${invoice.tenant_name ?? ''} 🙏\nBerikut tagihan sewa kamar ${invoice.room_number ?? '-'} (${kos_name}):\nNo: ${invoice.invoice_number}\nPeriode: ${tanggal(invoice.period_start)} – ${tanggal(invoice.period_end)}\nTotal: ${rupiah(invoice.amount)}\nSisa: ${rupiah(sisa)}\nJatuh tempo: ${tanggal(invoice.due_date)}\nMohon segera diselesaikan ya. Terima kasih.`;
+        ? `Tagihan ${invoice.invoice_number} (${kos_name} ${kos_tagline}) untuk ${invoice.tenant_name ?? '-'} Kamar ${invoice.room_number ?? '-'} sudah LUNAS. Terima kasih 🙏`
+        : `Halo ${invoice.tenant_name ?? ''} 🙏\nBerikut tagihan sewa kamar ${invoice.room_number ?? '-'} (${kos_name} ${kos_tagline}):\nNo: ${invoice.invoice_number}\nPeriode: ${tanggal(invoice.period_start)} – ${tanggal(invoice.period_end)}\nTotal: ${rupiah(invoice.amount)}\nSisa: ${rupiah(sisa)}\nJatuh tempo: ${tanggal(invoice.due_date)}\nMohon segera diselesaikan ya. Terima kasih.`;
 
     return (
         <>
@@ -36,11 +37,7 @@ export default function Tagihan({ invoice, kos_name, kos_owner }: { invoice: Tag
 
             <div className="mx-auto max-w-md p-4">
                 <div ref={cardRef} className="bg-white p-8 shadow-md print:shadow-none">
-                    {/* Header */}
-                    <div className="border-b-2 border-slate-800 pb-4 text-center">
-                        <h1 className="text-lg font-extrabold uppercase tracking-wide text-slate-800">{kos_name}</h1>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-brand-600">Tagihan Sewa</p>
-                    </div>
+                    <ReceiptHeader name={kos_name} tagline={kos_tagline} subtitle="Tagihan Sewa" />
 
                     {/* No + status */}
                     <div className="mt-4 flex items-center justify-between text-xs">

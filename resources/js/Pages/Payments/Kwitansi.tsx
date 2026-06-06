@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { useRef } from 'react';
 import { rupiah, tanggal } from '@/lib/format';
 import ReceiptActions from '@/Components/ReceiptActions';
+import ReceiptHeader from '@/Components/ReceiptHeader';
 
 interface KwitansiPayment {
     id: number;
@@ -22,11 +23,11 @@ const METHOD_LABEL: Record<string, string> = {
     qris: 'QRIS',
 };
 
-export default function Kwitansi({ payment, kos_name, kos_owner }: { payment: KwitansiPayment; kos_name: string; kos_owner: string }) {
+export default function Kwitansi({ payment, kos_name, kos_tagline, kos_owner }: { payment: KwitansiPayment; kos_name: string; kos_tagline: string; kos_owner: string }) {
     const cardRef = useRef<HTMLDivElement>(null);
     const noKwitansi = String(payment.id).padStart(6, '0');
     const filename = `kwitansi-${payment.tenant_name ?? 'penghuni'}-${noKwitansi}.png`.replace(/\s+/g, '-');
-    const waText = `Bukti pembayaran ${kos_name}\nPenghuni: ${payment.tenant_name ?? '-'} (Kamar ${payment.room_number ?? '-'})\nJumlah dibayar: ${rupiah(payment.amount)}\nTerima kasih 🙏`;
+    const waText = `Bukti pembayaran ${kos_name} ${kos_tagline}\nPenghuni: ${payment.tenant_name ?? '-'} (Kamar ${payment.room_number ?? '-'})\nJumlah dibayar: ${rupiah(payment.amount)}\nTerima kasih 🙏`;
 
     return (
         <>
@@ -37,11 +38,7 @@ export default function Kwitansi({ payment, kos_name, kos_owner }: { payment: Kw
             {/* Kwitansi (yang dijadikan gambar) */}
             <div className="mx-auto max-w-md p-4">
                 <div ref={cardRef} className="bg-white p-8 shadow-md print:shadow-none">
-                    {/* Header */}
-                    <div className="border-b-2 border-slate-800 pb-4 text-center">
-                        <h1 className="text-lg font-extrabold uppercase tracking-wide text-slate-800">{kos_name}</h1>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-brand-600">Bukti Pembayaran</p>
-                    </div>
+                    <ReceiptHeader name={kos_name} tagline={kos_tagline} subtitle="Bukti Pembayaran" />
 
                     {/* No kwitansi + tanggal */}
                     <div className="mt-4 flex justify-between text-xs text-slate-500">
