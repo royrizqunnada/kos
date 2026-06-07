@@ -17,37 +17,44 @@ use Src\Room\Domain\Models\Room;
 final class ReportService
 {
     /**
-     * PENDAPATAN (Revenue Recognition) — harga sewa bulanan tiap kontrak yang AKTIF di bulan itu.
+     * PENDAPATAN (Revenue Recognition) — alokasi pembayaran per BULAN SEWA.
      *
-     * Tiap bulan kalender yang masih disentuh masa sewa kontrak diakui PENUH sebesar harga
-     * sewa bulanan. Tanpa prorata harian, tanpa dibagi jumlah hari. Kontrak 20 Mar–19 Jun
-     * (Rp1.5jt) tetap diakui Rp1.5jt selama Mar, Apr, Mei, Jun (selama penghuni masih ngekos).
-     * Pengakuan ini lepas dari pembayaran (akrual) — kas masuk dihitung terpisah di paymentIncome().
+     * Nilai yang sudah dibayar pada tiap tagihan dibagi rata sesuai JUMLAH BULAN SEWA
+     * (durasi), lalu tiap bulan sewa diakui di bulan kalender tanggal mulainya. Bayar 3 bulan
+     * Rp4,5jt → diakui Rp1,5jt/bulan selama 3 bulan. Total pendapatan = total kas (cuma
+     * sebarannya per bulan), jadi tidak ada hitung dobel / kelebihan bulan tengah.
      */
     public function income(CarbonImmutable $from, CarbonImmutable $to): float
     {
         $rangeFromMonth = $from->startOfMonth();
         $rangeToMonth = $to->startOfMonth();
 
-        return (float) Lease::query()
-            ->whereIn('status', [LeaseStatus::Active->value, LeaseStatus::Ended->value])
-            ->whereDate('start_date', '<=', $to->toDateString())
-            ->whereDate('end_date', '>=', $from->toDateString())
-            ->get(['monthly_price', 'start_date', 'end_date'])
-            ->sum(function (Lease $lease) use ($rangeFromMonth, $rangeToMonth): float {
-                $monthly = (float) $lease->monthly_price;
-                // toImmutable agar addMonth() tidak mengubah variabel aslinya tiap iterasi.
-                $monthCursor = $lease->start_date->toImmutable()->startOfMonth();
-                $lastMonth = $lease->end_date->toImmutable()->startOfMonth();
+        return (float) Invoice::query()
+            ->where('paid_amount', '>', 0)
+            ->whereDate('period_start', '<=', $to->toDateString())
+            ->whereDate('period_end', '>=', $from->toDateString())
+            ->get(['paid_amount', 'period_start', 'period_end'])
+            ->sum(function (Invoice $invoice) use ($rangeFromMonth, $rangeToMonth): float {
+                $paid = (float) $invoice->paid_amount;
+                $start = $invoice->period_start->toImmutable();
+                $periodEnd = $invoice->period_end->toImmutable();
 
-                $months = 0;
-                for ($m = $monthCursor; $m->lessThanOrEqualTo($lastMonth); $m = $m->addMonth()) {
-                    if ($m->greaterThanOrEqualTo($rangeFromMonth) && $m->lessThanOrEqualTo($rangeToMonth)) {
-                        $months++;
+                // Hitung jumlah bulan sewa (anniversary) & berapa yang masuk rentang.
+                $totalMonths = 0;
+                $monthsInRange = 0;
+                for ($k = 0; $k < 600; $k++) {
+                    $anniversary = $start->addMonths($k);
+                    if ($anniversary->greaterThan($periodEnd)) {
+                        break;
+                    }
+                    $totalMonths++;
+                    $bucket = $anniversary->startOfMonth();
+                    if ($bucket->greaterThanOrEqualTo($rangeFromMonth) && $bucket->lessThanOrEqualTo($rangeToMonth)) {
+                        $monthsInRange++;
                     }
                 }
 
-                return $monthly * $months;
+                return $totalMonths === 0 ? 0.0 : $paid * $monthsInRange / $totalMonths;
             });
     }
 
