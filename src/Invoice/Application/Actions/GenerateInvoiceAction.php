@@ -32,7 +32,8 @@ final readonly class GenerateInvoiceAction
 
         return DB::transaction(function () use ($lease, $periodStart, $months) {
             $periodEnd = $periodStart->addMonths($months)->subDay();
-            $dueDate = $periodStart->addDays(5);
+            // Bayar di muka: jatuh tempo = tanggal mulai. Bisa diberi tenggang lewat config.
+            $dueDate = $periodStart->addDays((int) config('kos.due_grace_days', 0));
             $unitPrice = (float) $lease->monthly_price;
             $amount = $unitPrice * $months;
 

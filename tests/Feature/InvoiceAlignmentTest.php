@@ -30,8 +30,8 @@ it('aligns the first invoice with the contract dates (mid-month start)', functio
     expect($invoice->period_start->toDateString())->toBe('2026-03-15');
     expect($invoice->period_end->toDateString())->toBe('2026-06-14');
     expect($invoice->period_end->toDateString())->toBe($lease->end_date->toDateString());
-    // Jatuh tempo 5 hari setelah mulai.
-    expect($invoice->due_date->toDateString())->toBe('2026-03-20');
+    // Bayar di muka: jatuh tempo = tanggal mulai.
+    expect($invoice->due_date->toDateString())->toBe('2026-03-15');
 });
 
 it('does not double-bill inside the contract term', function () {

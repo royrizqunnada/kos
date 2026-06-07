@@ -24,6 +24,9 @@ return [
     // Default reminder day-offsets relative to invoice due date.
     'reminder_offsets' => [-7, -3, -1, 1, 7],
 
+    // Tenggang jatuh tempo tagihan (hari setelah tanggal mulai). 0 = bayar di muka (jatuh tempo = tanggal mulai).
+    'due_grace_days' => env('KOS_DUE_GRACE_DAYS', 0),
+
     // Default billing day of month for auto-generated monthly invoices.
     'billing_day' => env('KOS_BILLING_DAY', 1),
 
