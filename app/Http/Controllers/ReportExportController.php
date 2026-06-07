@@ -175,6 +175,7 @@ class ReportExportController extends Controller
             'from' => $from,
             'to' => $to,
             'appName' => config('kos.name', 'Cozy Corner'),
+            'kos' => config('kos'),
             ...$this->details($from, $to),
         ]);
     }
