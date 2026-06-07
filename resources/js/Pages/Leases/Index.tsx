@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Badge, Button, Card, EmptyState, PageHeader, Pagination, SecondaryButton, Select } from '@/Components/ui';
 import { rupiah, tanggal } from '@/lib/format';
 import type { Lease, Option, Paginated } from '@/types';
-import { Archive, Plus } from 'lucide-react';
+import { Archive, Plus, CalendarDays } from 'lucide-react';
 
 export default function Index({ leases, filters, statuses }: { leases: Paginated<Lease>; filters: { status?: string }; statuses: Option[] }) {
     const statusLabel = (l: Lease) => statuses.find((s) => s.value === l.status)?.label ?? l.status;
@@ -45,13 +45,19 @@ export default function Index({ leases, filters, statuses }: { leases: Paginated
                         <ul className="divide-y divide-slate-100 lg:hidden">
                             {leases.data.map((l) => (
                                 <li key={l.id}>
-                                    <Link href={`/leases/${l.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-slate-50">
-                                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">{l.room?.room_number}</div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate font-semibold text-slate-800">{l.tenant?.name}</p>
-                                            <p className="truncate text-sm text-slate-500">Kamar {l.room?.room_number} · {rupiah(l.monthly_price)}/bln</p>
+                                    <Link href={`/leases/${l.id}`} className="block px-4 py-3 active:bg-slate-50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">{l.room?.room_number}</div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate font-semibold text-slate-800">{l.tenant?.name}</p>
+                                                <p className="truncate text-sm text-slate-500">Kamar {l.room?.room_number} · {rupiah(l.monthly_price)}/bln</p>
+                                            </div>
+                                            <Badge status={l.status} label={statusLabel(l)} />
                                         </div>
-                                        <Badge status={l.status} label={statusLabel(l)} />
+                                        <div className="mt-2 flex items-center gap-1.5 pl-14 text-xs text-slate-500">
+                                            <CalendarDays size={13} className="shrink-0" />
+                                            <span>{tanggal(l.start_date)} – {tanggal(l.end_date)}</span>
+                                        </div>
                                     </Link>
                                 </li>
                             ))}
