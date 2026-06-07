@@ -75,6 +75,82 @@
         @endforeach
     </div>
 
+    @php $td = fn ($d) => $d ? \Carbon\CarbonImmutable::parse($d)->translatedFormat('d M Y') : '-'; @endphp
+
+    <h2>Pembayaran (Kas Masuk)</h2>
+    <table>
+        <tr><th>Tanggal</th><th>Penghuni</th><th>Kamar</th><th>No. Invoice</th><th>Metode</th><th style="text-align:right">Nominal</th></tr>
+        @forelse ($payments as $p)
+            <tr>
+                <td>{{ $td($p->paid_at) }}</td>
+                <td>{{ $p->invoice?->lease?->tenant?->name ?? '-' }}</td>
+                <td>{{ $p->invoice?->lease?->room?->room_number ?? '-' }}</td>
+                <td>{{ $p->invoice?->invoice_number ?? '-' }}</td>
+                <td>{{ $p->method->value }}</td>
+                <td style="text-align:right">{{ $rp($p->amount) }}</td>
+            </tr>
+        @empty
+            <tr><td colspan="6" class="muted">Tidak ada pembayaran.</td></tr>
+        @endforelse
+        @if (count($payments))
+            <tr><td colspan="5" style="text-align:right;font-weight:700">TOTAL</td><td style="text-align:right;font-weight:700">{{ $rp(collect($payments)->sum('amount')) }}</td></tr>
+        @endif
+    </table>
+
+    <h2>Tagihan</h2>
+    <table>
+        <tr><th>No. Invoice</th><th>Penghuni</th><th>Kamar</th><th>Periode</th><th>Jatuh Tempo</th><th style="text-align:right">Total</th><th style="text-align:right">Sisa</th><th>Status</th></tr>
+        @forelse ($invoices as $inv)
+            <tr>
+                <td>{{ $inv->invoice_number }}</td>
+                <td>{{ $inv->lease?->tenant?->name ?? '-' }}</td>
+                <td>{{ $inv->lease?->room?->room_number ?? '-' }}</td>
+                <td>{{ $td($inv->period_start) }} – {{ $td($inv->period_end) }}</td>
+                <td>{{ $td($inv->due_date) }}</td>
+                <td style="text-align:right">{{ $rp($inv->amount) }}</td>
+                <td style="text-align:right">{{ $rp((float) $inv->amount - (float) $inv->paid_amount) }}</td>
+                <td>{{ $inv->status->label() }}</td>
+            </tr>
+        @empty
+            <tr><td colspan="8" class="muted">Tidak ada tagihan.</td></tr>
+        @endforelse
+    </table>
+
+    <h2>Pengeluaran</h2>
+    <table>
+        <tr><th>Tanggal</th><th>Kategori</th><th>Deskripsi</th><th style="text-align:right">Nominal</th></tr>
+        @forelse ($expenses as $e)
+            <tr>
+                <td>{{ $td($e->spent_at) }}</td>
+                <td>{{ $e->category->label() }}</td>
+                <td>{{ $e->description }}</td>
+                <td style="text-align:right">{{ $rp($e->amount) }}</td>
+            </tr>
+        @empty
+            <tr><td colspan="4" class="muted">Tidak ada pengeluaran.</td></tr>
+        @endforelse
+        @if (count($expenses))
+            <tr><td colspan="3" style="text-align:right;font-weight:700">TOTAL</td><td style="text-align:right;font-weight:700">{{ $rp(collect($expenses)->sum('amount')) }}</td></tr>
+        @endif
+    </table>
+
+    <h2>Kontrak</h2>
+    <table>
+        <tr><th>Penghuni</th><th>Kamar</th><th>Mulai</th><th>Habis</th><th style="text-align:right">Harga/bln</th><th>Status</th></tr>
+        @forelse ($leases as $l)
+            <tr>
+                <td>{{ $l->tenant?->name ?? '-' }}</td>
+                <td>{{ $l->room?->room_number ?? '-' }}</td>
+                <td>{{ $td($l->start_date) }}</td>
+                <td>{{ $td($l->end_date) }}</td>
+                <td style="text-align:right">{{ $rp($l->monthly_price) }}</td>
+                <td>{{ $l->status->label() }}</td>
+            </tr>
+        @empty
+            <tr><td colspan="6" class="muted">Tidak ada kontrak.</td></tr>
+        @endforelse
+    </table>
+
     <p class="muted" style="margin-top:28px">Dicetak {{ now()->translatedFormat('d M Y H:i') }} · {{ $appName }}</p>
 </body>
 </html>

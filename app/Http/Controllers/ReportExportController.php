@@ -27,6 +27,33 @@ class ReportExportController extends Controller
         return [$from, $to];
     }
 
+    /** Detail transaksi dalam periode (eager-load relasi: strict mode produksi). */
+    private function details(CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $fromStr = $from->toDateString();
+        $toStr = $to->toDateString();
+
+        return [
+            'payments' => Payment::query()
+                ->with(['invoice.lease.tenant', 'invoice.lease.room'])
+                ->whereBetween('paid_at', [$from->startOfDay(), $to->endOfDay()])
+                ->orderBy('paid_at')->get(),
+            'invoices' => Invoice::query()
+                ->with(['lease.tenant', 'lease.room'])
+                ->whereDate('period_start', '<=', $toStr)
+                ->whereDate('period_end', '>=', $fromStr)
+                ->orderBy('due_date')->get(),
+            'expenses' => Expense::query()
+                ->whereBetween('spent_at', [$fromStr, $toStr])
+                ->orderBy('spent_at')->get(),
+            'leases' => Lease::query()
+                ->with(['tenant', 'room'])
+                ->whereDate('start_date', '<=', $toStr)
+                ->whereDate('end_date', '>=', $fromStr)
+                ->orderBy('start_date')->get(),
+        ];
+    }
+
     public function csv(Request $request, ReportService $reports)
     {
         $this->authorize('viewAny', Expense::class);
@@ -37,27 +64,7 @@ class ReportExportController extends Controller
         $fromStr = $from->toDateString();
         $toStr = $to->toDateString();
 
-        // Detail transaksi dalam periode (eager-load relasi: strict mode produksi).
-        $payments = Payment::query()
-            ->with(['invoice.lease.tenant', 'invoice.lease.room'])
-            ->whereBetween('paid_at', [$from->startOfDay(), $to->endOfDay()])
-            ->orderBy('paid_at')->get();
-
-        $invoices = Invoice::query()
-            ->with(['lease.tenant', 'lease.room'])
-            ->whereDate('period_start', '<=', $toStr)
-            ->whereDate('period_end', '>=', $fromStr)
-            ->orderBy('due_date')->get();
-
-        $expenses = Expense::query()
-            ->whereBetween('spent_at', [$fromStr, $toStr])
-            ->orderBy('spent_at')->get();
-
-        $leases = Lease::query()
-            ->with(['tenant', 'room'])
-            ->whereDate('start_date', '<=', $toStr)
-            ->whereDate('end_date', '>=', $fromStr)
-            ->orderBy('start_date')->get();
+        ['payments' => $payments, 'invoices' => $invoices, 'expenses' => $expenses, 'leases' => $leases] = $this->details($from, $to);
 
         $filename = "laporan-lengkap-{$fromStr}-{$toStr}.csv";
 
@@ -167,7 +174,8 @@ class ReportExportController extends Controller
             'series' => $reports->monthlySeries((int) $to->year),
             'from' => $from,
             'to' => $to,
-            'appName' => config('app.name', 'Cozy Corner'),
+            'appName' => config('kos.name', 'Cozy Corner'),
+            ...$this->details($from, $to),
         ]);
     }
 }
