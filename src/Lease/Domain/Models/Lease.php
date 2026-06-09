@@ -23,7 +23,8 @@ class Lease extends Model
 
     protected $fillable = [
         'room_id', 'tenant_id', 'start_date', 'end_date',
-        'duration', 'monthly_price', 'deposit', 'deposit_refunded',
+        'duration', 'monthly_price', 'discount_type', 'discount_value',
+        'deposit', 'deposit_refunded',
         'deposit_deduction', 'status', 'ended_at', 'notes', 'checkout_notes',
     ];
 
@@ -36,6 +37,7 @@ class Lease extends Model
             'duration' => LeaseDuration::class,
             'status' => LeaseStatus::class,
             'monthly_price' => 'decimal:2',
+            'discount_value' => 'decimal:2',
             'deposit' => 'decimal:2',
             'deposit_refunded' => 'decimal:2',
             'deposit_deduction' => 'decimal:2',

@@ -11,6 +11,7 @@ interface TagihanInvoice {
     period_end: string;
     due_date: string;
     amount: number;
+    discount: number;
     paid_amount: number;
     status: string;
     status_label: string;
@@ -66,6 +67,18 @@ export default function Tagihan({ invoice, kos_name, kos_tagline, kos_owner }: {
                                 <td className="py-2 text-slate-500">Jatuh Tempo</td>
                                 <td className="py-2 font-semibold">{tanggal(invoice.due_date)}</td>
                             </tr>
+                            {invoice.discount > 0 && (
+                                <>
+                                    <tr>
+                                        <td className="py-2 text-slate-500">Harga Sewa</td>
+                                        <td className="py-2">{rupiah(invoice.amount + invoice.discount)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="py-2 text-slate-500">Diskon</td>
+                                        <td className="py-2 text-rose-600">− {rupiah(invoice.discount)}</td>
+                                    </tr>
+                                </>
+                            )}
                             {invoice.paid_amount > 0 && (
                                 <tr>
                                     <td className="py-2 text-slate-500">Sudah Dibayar</td>

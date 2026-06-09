@@ -50,6 +50,7 @@ class InvoiceController extends Controller
                 'period_end' => $invoice->period_end->toDateString(),
                 'due_date' => $invoice->due_date->toDateString(),
                 'amount' => (float) $invoice->amount,
+                'discount' => (float) $invoice->discount,
                 'paid_amount' => (float) $invoice->paid_amount,
                 'status' => $invoice->status->value,
                 'status_label' => $invoice->status->label(),

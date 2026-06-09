@@ -39,6 +39,8 @@ final readonly class CreateLeaseAction
                 'end_date' => $data->endDate()->toDateString(),
                 'duration' => $data->duration->value,
                 'monthly_price' => $data->monthlyPrice,
+                'discount_type' => $data->discountType,
+                'discount_value' => $data->discountValue,
                 'deposit' => $data->deposit,
                 'status' => LeaseStatus::Active->value,
                 'notes' => $data->notes,

@@ -150,6 +150,8 @@ class LeaseController extends Controller
                 'room_id' => $lease->room_id,
                 'duration' => $lease->duration->value,
                 'monthly_price' => (float) $lease->monthly_price,
+                'discount_type' => $lease->discount_type,
+                'discount_value' => (float) $lease->discount_value,
                 'deposit' => (float) $lease->deposit,
             ],
             'default_start' => CarbonImmutable::parse($lease->end_date)->addDay()->toDateString(),
@@ -176,6 +178,8 @@ class LeaseController extends Controller
                 duration: $lease->duration,
                 monthlyPrice: (float) $lease->monthly_price,
                 deposit: (float) $lease->deposit,
+                discountType: $lease->discount_type,
+                discountValue: (float) $lease->discount_value,
             ), true);
         } catch (Throwable $e) {
             return back()->with('error', $e->getMessage());

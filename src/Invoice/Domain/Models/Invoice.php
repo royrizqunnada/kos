@@ -21,7 +21,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'lease_id', 'invoice_number', 'period_start', 'period_end',
-        'due_date', 'amount', 'paid_amount', 'status', 'notes',
+        'due_date', 'amount', 'discount', 'paid_amount', 'status', 'notes',
     ];
 
     protected function casts(): array
@@ -31,6 +31,7 @@ class Invoice extends Model
             'period_end' => 'date',
             'due_date' => 'date',
             'amount' => 'decimal:2',
+            'discount' => 'decimal:2',
             'paid_amount' => 'decimal:2',
             'status' => InvoiceStatus::class,
         ];

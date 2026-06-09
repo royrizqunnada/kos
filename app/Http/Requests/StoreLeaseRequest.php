@@ -18,6 +18,8 @@ class StoreLeaseRequest extends FormRequest
             'start_date' => ['required', 'date'],
             'duration' => ['required', Rule::enum(LeaseDuration::class)],
             'monthly_price' => ['required', 'numeric', 'min:0'],
+            'discount_type' => ['nullable', 'in:none,nominal,percent'],
+            'discount_value' => ['nullable', 'numeric', 'min:0', $this->input('discount_type') === 'percent' ? 'max:100' : 'max:1000000000'],
             'deposit' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
             'generate_invoice' => ['nullable', 'boolean'],

@@ -17,6 +17,8 @@ final readonly class LeaseData
         public float $monthlyPrice,
         public float $deposit = 0,
         public ?string $notes = null,
+        public string $discountType = 'none', // none | nominal | percent
+        public float $discountValue = 0,
     ) {}
 
     public static function fromArray(array $data): self
@@ -29,6 +31,8 @@ final readonly class LeaseData
             monthlyPrice: (float) $data['monthly_price'],
             deposit: (float) ($data['deposit'] ?? 0),
             notes: $data['notes'] ?? null,
+            discountType: $data['discount_type'] ?? 'none',
+            discountValue: (float) ($data['discount_value'] ?? 0),
         );
     }
 

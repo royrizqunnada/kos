@@ -35,7 +35,15 @@ final readonly class GenerateInvoiceAction
             // Bayar di muka: jatuh tempo = tanggal mulai. Bisa diberi tenggang lewat config.
             $dueDate = $periodStart->addDays((int) config('kos.due_grace_days', 0));
             $unitPrice = (float) $lease->monthly_price;
-            $amount = $unitPrice * $months;
+            $gross = $unitPrice * $months;
+
+            // Diskon mengikuti kontrak (nominal Rp atau persen), dipotong tiap tagihan.
+            $discount = match ($lease->discount_type) {
+                'nominal' => min((float) $lease->discount_value, $gross),
+                'percent' => round($gross * (float) $lease->discount_value / 100, 2),
+                default => 0.0,
+            };
+            $amount = $gross - $discount;
 
             $periodLabel = $months > 1
                 ? "{$periodStart->translatedFormat('M Y')} – {$periodEnd->translatedFormat('M Y')}"
@@ -48,6 +56,7 @@ final readonly class GenerateInvoiceAction
                 'period_end' => $periodEnd->toDateString(),
                 'due_date' => $dueDate->toDateString(),
                 'amount' => $amount,
+                'discount' => $discount,
                 'paid_amount' => 0,
                 'status' => InvoiceStatus::Unpaid->value,
             ]);
@@ -56,8 +65,20 @@ final readonly class GenerateInvoiceAction
                 'description' => "Sewa kamar {$lease->room->room_number} ({$periodLabel}) · {$months} bulan",
                 'quantity' => $months,
                 'unit_price' => $unitPrice,
-                'amount' => $amount,
+                'amount' => $gross,
             ]);
+
+            if ($discount > 0) {
+                $label = $lease->discount_type === 'percent'
+                    ? "Diskon {$lease->discount_value}%"
+                    : 'Diskon';
+                $invoice->items()->create([
+                    'description' => $label,
+                    'quantity' => 1,
+                    'unit_price' => -$discount,
+                    'amount' => -$discount,
+                ]);
+            }
 
             return $invoice;
         });
