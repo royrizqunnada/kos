@@ -168,6 +168,7 @@
   $galleries = $galleries ?? [];
   $photoUrl = fn ($p) => rtrim($kos['apps_url'] ?? '', '/').'/storage/'.$p;
   $heroPhotos = collect($galleries)->where('category', 'kos')->take(6)->values();
+  $fasilitasPhotos = collect($galleries)->where('category', 'fasilitas')->values();
 @endphp
 <body>
 
@@ -178,7 +179,7 @@
       <a href="#lokasi">Lokasi</a>
       <a href="#harga">Harga</a>
       <a href="#fasilitas">Fasilitas</a>
-      @if(count($galleries))<a href="#galeri">Galeri</a>@endif
+      @if($fasilitasPhotos->isNotEmpty())<a href="#galeri">Galeri</a>@endif
       <a href="#kontak">Kontak</a>
     </div>
     <a href="{{ $waTanya }}" class="btn">Chat WhatsApp</a>
@@ -310,16 +311,16 @@
   </div>
 </section>
 
-@if(count($galleries))
+@if($fasilitasPhotos->isNotEmpty())
 <section id="galeri">
   <div class="wrap reveal">
     <div class="sec-tag">Galeri</div>
-    <h2 class="sec-title">Lihat Lebih Dekat</h2>
-    <p class="sec-sub">Foto kamar & fasilitas Cozy Corner — biar makin yakin sebelum survey.</p>
+    <h2 class="sec-title">Foto Fasilitas</h2>
+    <p class="sec-sub">Lihat fasilitas Cozy Corner lebih dekat — biar makin yakin sebelum survey.</p>
     <div class="gallery">
-      @foreach($galleries as $g)
+      @foreach($fasilitasPhotos as $g)
         <figure class="gitem">
-          <img src="{{ $photoUrl($g['path']) }}" alt="{{ $g['caption'] ?? 'Foto kos' }}" loading="lazy">
+          <img src="{{ $photoUrl($g['path']) }}" alt="{{ $g['caption'] ?? 'Fasilitas' }}" loading="lazy">
           @if($g['caption'])<figcaption>{{ $g['caption'] }}</figcaption>@endif
         </figure>
       @endforeach
