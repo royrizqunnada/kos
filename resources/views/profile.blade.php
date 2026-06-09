@@ -151,12 +151,23 @@
   @keyframes waPulse{0%{transform:scale(1);opacity:.5;}70%{transform:scale(1.7);opacity:0;}100%{opacity:0;}}
   .flogin{opacity:.55;font-size:12px;text-decoration:underline;margin-top:8px;}
   .flogin:hover{opacity:.9;}
+  .slide.photo{background-size:cover;background-position:center;}
+  .slide.photo .cap{position:absolute;bottom:16px;left:16px;right:16px;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);color:#fff;padding:9px 13px;border-radius:12px;font-size:14px;font-weight:600;}
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .gitem{position:relative;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);aspect-ratio:1/1;}
+  .gitem img{width:100%;height:100%;object-fit:cover;display:block;transition:.45s;}
+  .gitem:hover img{transform:scale(1.07);}
+  .gitem figcaption{position:absolute;inset-inline:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:12.5px;font-weight:500;padding:18px 12px 9px;}
+  @media(max-width:680px){.gallery{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 @php
   $waBase = 'https://wa.me/'.$kos['phone'];
   $waTanya = $waBase.'?text='.rawurlencode('Halo '.$kos['name'].', saya mau tanya ketersediaan kamar kosong & jadwal survey. Terima kasih.');
   $rupiahJt = fn ($v) => 'Rp '.number_format(((float) $v) / 1000000, 1, ',', '.').'jt';
+  $galleries = $galleries ?? [];
+  $photoUrl = fn ($p) => rtrim($kos['apps_url'] ?? '', '/').'/storage/'.$p;
+  $heroPhotos = collect($galleries)->where('category', 'kos')->take(6)->values();
 @endphp
 <body>
 
@@ -167,6 +178,7 @@
       <a href="#lokasi">Lokasi</a>
       <a href="#harga">Harga</a>
       <a href="#fasilitas">Fasilitas</a>
+      @if(count($galleries))<a href="#galeri">Galeri</a>@endif
       <a href="#kontak">Kontak</a>
     </div>
     <a href="{{ $waTanya }}" class="btn">Chat WhatsApp</a>
@@ -190,12 +202,20 @@
     </div>
     <div class="hero-visual">
       <div class="carousel" id="carousel">
-        <span class="c-tag">✨ Highlight</span>
+        <span class="c-tag">{{ $heroPhotos->isEmpty() ? '✨ Highlight' : '📸 Cozy Corner' }}</span>
         <div class="slides">
-          <div class="slide s1 active"><div class="s-ic">🎓</div><h3>Dekat Kampus</h3><p>Hanya {{ $kos['near'] }} — praktis untuk kuliah sehari-hari.</p></div>
-          <div class="slide s2"><div class="s-ic">🛏️</div><h3>Kamar Nyaman</h3><p>Kamar mandi dalam, AC, kasur, lemari, dan meja belajar — siap huni.</p></div>
-          <div class="slide s3"><div class="s-ic">🔒</div><h3>Aman 24 Jam</h3><p>CCTV 24 jam dan penjaga kost — nyaman untuk orang tua titipkan putrinya.</p></div>
-          <div class="slide s4"><div class="s-ic">💰</div><h3>Harga Bersahabat</h3><p>Fasilitas lengkap dengan harga yang ramah kantong.</p></div>
+          @if($heroPhotos->isNotEmpty())
+            @foreach($heroPhotos as $i => $ph)
+              <div class="slide photo {{ $i === 0 ? 'active' : '' }}" style="background-image:url('{{ $photoUrl($ph['path']) }}')">
+                @if($ph['caption'])<div class="cap">{{ $ph['caption'] }}</div>@endif
+              </div>
+            @endforeach
+          @else
+            <div class="slide s1 active"><div class="s-ic">🎓</div><h3>Dekat Kampus</h3><p>Hanya {{ $kos['near'] }} — praktis untuk kuliah sehari-hari.</p></div>
+            <div class="slide s2"><div class="s-ic">🛏️</div><h3>Kamar Nyaman</h3><p>Kamar mandi dalam, AC, kasur, lemari, dan meja belajar — siap huni.</p></div>
+            <div class="slide s3"><div class="s-ic">🔒</div><h3>Aman 24 Jam</h3><p>CCTV 24 jam dan penjaga kost — nyaman untuk orang tua titipkan putrinya.</p></div>
+            <div class="slide s4"><div class="s-ic">💰</div><h3>Harga Bersahabat</h3><p>Fasilitas lengkap dengan harga yang ramah kantong.</p></div>
+          @endif
         </div>
         <div class="dots" id="dots"></div>
       </div>
@@ -289,6 +309,24 @@
     </div>
   </div>
 </section>
+
+@if(count($galleries))
+<section id="galeri">
+  <div class="wrap reveal">
+    <div class="sec-tag">Galeri</div>
+    <h2 class="sec-title">Lihat Lebih Dekat</h2>
+    <p class="sec-sub">Foto kamar & fasilitas Cozy Corner — biar makin yakin sebelum survey.</p>
+    <div class="gallery">
+      @foreach($galleries as $g)
+        <figure class="gitem">
+          <img src="{{ $photoUrl($g['path']) }}" alt="{{ $g['caption'] ?? 'Foto kos' }}" loading="lazy">
+          @if($g['caption'])<figcaption>{{ $g['caption'] }}</figcaption>@endif
+        </figure>
+      @endforeach
+    </div>
+  </div>
+</section>
+@endif
 
 <section id="kontak" class="cta">
   <div class="wrap reveal">

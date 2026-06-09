@@ -2,7 +2,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { ReactNode, useState } from 'react';
 import {
     LayoutDashboard, DoorOpen, Users, FileSignature, ReceiptText,
-    Wallet, TrendingDown, BarChart3, Settings, LogOut, Menu, User,
+    Wallet, TrendingDown, BarChart3, Settings, LogOut, Menu, User, Image as ImageIcon,
 } from 'lucide-react';
 import { Logo } from '@/Components/ui';
 import type { PageProps } from '@/types';
@@ -16,6 +16,7 @@ const NAV = [
     { name: 'Pembayaran', href: '/payments', icon: Wallet },
     { name: 'Pengeluaran', href: '/expenses', icon: TrendingDown },
     { name: 'Laporan', href: '/reports', icon: BarChart3 },
+    { name: 'Galeri', href: '/galleries', icon: ImageIcon },
     { name: 'Pengaturan', href: '/settings', icon: Settings },
 ];
 

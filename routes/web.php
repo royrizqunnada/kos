@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaseController;
 use App\Http\Controllers\PaymentController;
@@ -77,4 +78,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+
+    Route::get('galleries', [GalleryController::class, 'index'])->name('galleries.index');
+    Route::post('galleries', [GalleryController::class, 'store'])->name('galleries.store');
+    Route::delete('galleries/{gallery}', [GalleryController::class, 'destroy'])->name('galleries.destroy');
 });
