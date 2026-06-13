@@ -13,6 +13,7 @@ use Src\Invoice\Application\Actions\GenerateDueInvoicesAction;
 use Src\Invoice\Domain\Enums\InvoiceStatus;
 use Src\Invoice\Domain\Models\Invoice;
 use Src\Invoice\Domain\Repositories\InvoiceRepositoryInterface;
+use Throwable;
 
 class InvoiceController extends Controller
 {
@@ -67,7 +68,14 @@ class InvoiceController extends Controller
     public function generate(GenerateDueInvoicesAction $action): RedirectResponse
     {
         $this->authorize('create', Invoice::class);
-        $count = $action->execute(CarbonImmutable::now());
+
+        try {
+            $count = $action->execute(CarbonImmutable::now());
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Gagal membuat tagihan: '.$e->getMessage());
+        }
 
         return back()->with('success', "$count tagihan berhasil dibuat.");
     }
