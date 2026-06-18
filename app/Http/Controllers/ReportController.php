@@ -26,6 +26,7 @@ class ReportController extends Controller
         return Inertia::render('Reports/Index', [
             'summary' => $reports->summary($from, $to),
             'filters' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
+            'payments' => Inertia::defer(fn () => $reports->payments($from, $to)),
             'series' => Inertia::defer(fn () => $reports->monthlySeries((int) $to->year)),
         ]);
     }

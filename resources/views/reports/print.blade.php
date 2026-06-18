@@ -93,7 +93,8 @@
         </div>
     </div>
 
-    <div class="grid">
+    <div class="grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="card"><div class="lbl">Kas Masuk</div><div class="val green">{{ $rp($summary['cash']) }}</div></div>
         <div class="card"><div class="lbl">Pendapatan</div><div class="val green">{{ $rp($summary['income']) }}</div></div>
         <div class="card exp"><div class="lbl">Pengeluaran</div><div class="val red">{{ $rp($summary['expense']) }}</div></div>
         <div class="card profit"><div class="lbl">Laba Bersih</div><div class="val">{{ $rp($summary['profit']) }}</div></div>
@@ -124,7 +125,7 @@
 
     <h2>Pembayaran (Kas Masuk)</h2>
     <table>
-        <thead><tr><th>Tanggal</th><th>Penghuni</th><th>Kamar</th><th>No. Invoice</th><th>Metode</th><th class="num">Nominal</th></tr></thead>
+        <thead><tr><th>Tanggal</th><th>Penghuni</th><th>Kamar</th><th>No. Invoice</th><th>Metode</th><th>Catatan</th><th class="num">Nominal</th></tr></thead>
         <tbody>
             @forelse ($payments as $p)
                 <tr>
@@ -132,14 +133,15 @@
                     <td>{{ $p->invoice?->lease?->tenant?->name ?? '-' }}</td>
                     <td>{{ $p->invoice?->lease?->room?->room_number ?? '-' }}</td>
                     <td>{{ $p->invoice?->invoice_number ?? '-' }}</td>
-                    <td>{{ ucfirst($p->method->value) }}</td>
+                    <td>{{ $p->method->label() }}</td>
+                    <td>{{ $p->note ?: '-' }}</td>
                     <td class="num">{{ $rp($p->amount) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="empty">Tidak ada pembayaran pada periode ini.</td></tr>
+                <tr><td colspan="7" class="empty">Tidak ada pembayaran pada periode ini.</td></tr>
             @endforelse
             @if (count($payments))
-                <tr class="total-row"><td colspan="5" class="num">TOTAL</td><td class="num">{{ $rp(collect($payments)->sum('amount')) }}</td></tr>
+                <tr class="total-row"><td colspan="6" class="num">TOTAL</td><td class="num">{{ $rp(collect($payments)->sum('amount')) }}</td></tr>
             @endif
         </tbody>
     </table>

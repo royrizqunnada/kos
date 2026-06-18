@@ -79,6 +79,7 @@ class ReportExportController extends Controller
 
             // 1. Ringkasan
             fputcsv($out, ['== RINGKASAN ==']);
+            fputcsv($out, ['Kas masuk (Rp)', $summary['cash']]);
             fputcsv($out, ['Pendapatan (Rp)', $summary['income']]);
             fputcsv($out, ['Pengeluaran (Rp)', $summary['expense']]);
             fputcsv($out, ['Laba bersih (Rp)', $summary['profit']]);

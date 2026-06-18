@@ -69,6 +69,31 @@ final class ReportService
             ->sum('amount');
     }
 
+    /**
+     * Rincian KAS MASUK — setiap pembayaran (uang masuk) pada periode, lengkap dengan catatan.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function payments(CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        return Payment::query()
+            ->with(['invoice.lease.tenant:id,name', 'invoice.lease.room:id,room_number', 'invoice:id,invoice_number,lease_id'])
+            ->whereBetween('paid_at', [$from->startOfDay(), $to->endOfDay()])
+            ->orderBy('paid_at')
+            ->get()
+            ->map(fn (Payment $p) => [
+                'id' => $p->id,
+                'paid_at' => $p->paid_at?->toIso8601String(),
+                'tenant_name' => $p->invoice?->lease?->tenant?->name,
+                'room_number' => $p->invoice?->lease?->room?->room_number,
+                'invoice_number' => $p->invoice?->invoice_number,
+                'method' => $p->method->value,
+                'amount' => (float) $p->amount,
+                'note' => $p->note,
+            ])
+            ->all();
+    }
+
     public function expense(CarbonImmutable $from, CarbonImmutable $to): float
     {
         return (float) Expense::query()
@@ -88,11 +113,14 @@ final class ReportService
     public function summary(CarbonImmutable $from, CarbonImmutable $to): array
     {
         $income = $this->income($from, $to);
+        $cash = $this->paymentIncome($from, $to);
         $expense = $this->expense($from, $to);
 
         return [
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
             'income' => $income,
+            // Kas masuk = uang yang benar-benar diterima pada periode (basis kas, sama dgn Dashboard)
+            'cash' => $cash,
             'expense' => $expense,
             'profit' => $income - $expense,
             'receivables' => $this->receivables(),
