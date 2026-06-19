@@ -25,6 +25,19 @@ it('shows the public profile with live room availability', function () {
         ->assertSee('Termurah');             // tipe termurah (D) ditandai
 });
 
+it('shows the most common price per type, ignoring discounted rooms', function () {
+    // Tipe B: mayoritas 1,6jt, satu kamar diskon jadi 1,5jt.
+    Room::factory()->create(['type' => RoomType::B->value, 'price' => 1_600_000, 'status' => RoomStatus::Available->value]);
+    Room::factory()->create(['type' => RoomType::B->value, 'price' => 1_600_000, 'status' => RoomStatus::Available->value]);
+    Room::factory()->create(['type' => RoomType::B->value, 'price' => 1_600_000, 'status' => RoomStatus::Occupied->value]);
+    Room::factory()->create(['type' => RoomType::B->value, 'price' => 1_500_000, 'status' => RoomStatus::Available->value]);
+
+    $this->get(profileUrl())
+        ->assertOk()
+        ->assertSee('Rp 1,6jt')        // harga modus, bukan harga diskon termurah
+        ->assertDontSee('Rp 1,5jt');
+});
+
 it('marks a fully occupied type as penuh', function () {
     Room::factory()->create(['type' => RoomType::A->value, 'price' => 1_700_000, 'status' => RoomStatus::Occupied->value]);
 

@@ -23,7 +23,7 @@ class PublicProfileController extends Controller
 
                 return [
                     'label' => $type->label(),
-                    'price' => $ofType->min(fn (Room $r) => (float) $r->price),
+                    'price' => $this->representativePrice($ofType),
                     'total' => $ofType->count(),
                     'available' => $ofType->filter(fn (Room $r) => $r->status === RoomStatus::Available)->count(),
                 ];
@@ -45,5 +45,30 @@ class PublicProfileController extends Controller
             'galleries' => Gallery::query()->orderBy('sort_order')->orderByDesc('id')->get(['category', 'caption', 'path'])
                 ->map(fn (Gallery $g) => ['category' => $g->category, 'caption' => $g->caption, 'path' => $g->path])->all(),
         ]);
+    }
+
+    /**
+     * Harga representatif sebuah tipe = harga yang paling sering dipakai (modus),
+     * bukan yang termurah. Tujuannya agar diskon khusus pada 1-2 kamar tidak
+     * menggeser harga yang tampil di profil. Jika jumlahnya seri, ambil harga
+     * tertinggi (harga normal sebelum diskon).
+     */
+    private function representativePrice(\Illuminate\Support\Collection $rooms): ?float
+    {
+        if ($rooms->isEmpty()) {
+            return null;
+        }
+
+        return $rooms
+            ->groupBy(fn (Room $r) => (string) $r->price)   // kelompokkan per harga
+            ->map(fn (\Illuminate\Support\Collection $group) => [
+                'price' => (float) $group->first()->price,
+                'count' => $group->count(),
+            ])
+            ->sortBy([
+                ['count', 'desc'],   // harga yang paling sering dipakai
+                ['price', 'desc'],   // seri → pilih harga tertinggi (harga normal)
+            ])
+            ->first()['price'];
     }
 }
