@@ -2,12 +2,13 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { ReactNode, useState } from 'react';
 import {
     LayoutDashboard, DoorOpen, Users, FileSignature, ReceiptText,
-    Wallet, TrendingDown, BarChart3, Settings, LogOut, Menu, User, Image as ImageIcon,
+    Wallet, TrendingDown, BarChart3, Settings, LogOut, Menu, User, UserCog, Image as ImageIcon,
 } from 'lucide-react';
 import { Logo } from '@/Components/ui';
+import { can } from '@/lib/can';
 import type { PageProps } from '@/types';
 
-const NAV = [
+const NAV: { name: string; href: string; icon: typeof LayoutDashboard; permission?: string }[] = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Kamar', href: '/rooms', icon: DoorOpen },
     { name: 'Penghuni', href: '/tenants', icon: Users },
@@ -17,6 +18,7 @@ const NAV = [
     { name: 'Pengeluaran', href: '/expenses', icon: TrendingDown },
     { name: 'Laporan', href: '/reports', icon: BarChart3 },
     { name: 'Galeri', href: '/galleries', icon: ImageIcon },
+    { name: 'User', href: '/users', icon: UserCog, permission: 'user.viewAny' },
     { name: 'Pengaturan', href: '/settings', icon: Settings },
 ];
 
@@ -56,7 +58,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                     </div>
                 </div>
                 <nav className="space-y-1 p-3">
-                    {NAV.map((item) => {
+                    {NAV.filter((item) => !item.permission || can(auth.user, item.permission)).map((item) => {
                         const Icon = item.icon;
                         return (
                             <Link
@@ -145,6 +147,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                     const group: Record<string, string[]> = {
                         '/rooms': ['/rooms', '/tenants', '/leases'],
                         '/invoices': ['/invoices', '/payments'],
+                        '/settings': ['/settings', '/users'],
                     };
                     const paths = group[item.href] ?? [item.href];
                     const active = item.href === '/' ? currentUrl === '/' : paths.some((p) => currentUrl.startsWith(p));

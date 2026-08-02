@@ -16,7 +16,7 @@ class RolePermissionSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $modules = ['room', 'tenant', 'lease', 'invoice', 'payment', 'expense', 'report', 'setting'];
+        $modules = ['room', 'tenant', 'lease', 'invoice', 'payment', 'expense', 'report', 'setting', 'user'];
         $abilities = ['viewAny', 'view', 'create', 'update', 'delete'];
 
         foreach ($modules as $module) {
@@ -32,17 +32,20 @@ class RolePermissionSeeder extends Seeder
         // Super Admin: everything (handled by Gate::before too).
         $superAdmin->syncPermissions(Permission::all());
 
-        // Owner: read-only access to all data + reports.
+        // Owner: read-only access to all data + reports (no user management).
         $owner->syncPermissions(
-            Permission::whereIn('name', array_map(
-                fn ($m) => "$m.viewAny",
-                $modules
-            ))->orWhere('name', 'like', '%.view')->get()
+            Permission::query()
+                ->where('name', 'not like', 'user.%')
+                ->where(fn ($q) => $q->where('name', 'like', '%.viewAny')->orWhere('name', 'like', '%.view'))
+                ->get()
         );
 
-        // Admin: full operational management except settings.
+        // Admin: full operational management except settings & user management.
         $admin->syncPermissions(
-            Permission::where('name', 'not like', 'setting.%')->get()
+            Permission::query()
+                ->where('name', 'not like', 'setting.%')
+                ->where('name', 'not like', 'user.%')
+                ->get()
         );
     }
 }

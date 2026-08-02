@@ -23,6 +23,16 @@ export interface AuthUser {
     permissions: string[];
 }
 
+/** User aplikasi pada halaman manajemen user. */
+export interface ManagedUser {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    role: string | null;
+    created_at: string | null;
+}
+
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     auth: { user: AuthUser | null };
     flash: { success: string | null; error: string | null };

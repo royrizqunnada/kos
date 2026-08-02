@@ -9,12 +9,14 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LeaseController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Halaman profil publik di domain utama (cozycornerliving.id) — terpisah dari app manajemen.
@@ -78,6 +80,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+
+    // Akun sendiri (semua user yang login).
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Manajemen user (butuh permission user.*).
+    Route::put('users/{user}/password', [UserController::class, 'updatePassword'])->name('users.password');
+    Route::resource('users', UserController::class)->except('show');
 
     Route::get('galleries', [GalleryController::class, 'index'])->name('galleries.index');
     Route::post('galleries', [GalleryController::class, 'store'])->name('galleries.store');

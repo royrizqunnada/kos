@@ -78,6 +78,17 @@ echo "" | sudo -S service php8.4-fpm reload
 > Ganti `{BRANCH}` dengan branch yang dipilih (mis. `main`). `{SITE_DIRECTORY}`
 > adalah placeholder bawaan Ploi — biarkan apa adanya.
 
+> **Sekali saat rilis manajemen user.** Permission `user.*` ditambahkan lewat seeder, bukan
+> migrasi. Jalankan sekali di server setelah deploy (aman diulang, hanya menyentuh tabel
+> role & permission):
+>
+> ```bash
+> php artisan db:seed --class=Database\\Seeders\\RolePermissionSeeder --force
+> ```
+>
+> Tanpa langkah ini, menu **User** tetap bisa dipakai Super Admin (Super Admin melewati
+> semua gate), tetapi permission `user.*` belum tercatat di database.
+
 ---
 
 ## 4. Queue Worker

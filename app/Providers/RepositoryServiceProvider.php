@@ -7,6 +7,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Src\Expense\Domain\Repositories\ExpenseRepositoryInterface;
 use Src\Expense\Infrastructure\Repositories\EloquentExpenseRepository;
+use Src\Identity\Domain\Repositories\UserRepositoryInterface;
+use Src\Identity\Infrastructure\Repositories\EloquentUserRepository;
 use Src\Invoice\Domain\Repositories\InvoiceRepositoryInterface;
 use Src\Invoice\Infrastructure\Repositories\EloquentInvoiceRepository;
 use Src\Lease\Domain\Repositories\LeaseRepositoryInterface;
@@ -31,6 +33,7 @@ class RepositoryServiceProvider extends ServiceProvider
         InvoiceRepositoryInterface::class => EloquentInvoiceRepository::class,
         PaymentRepositoryInterface::class => EloquentPaymentRepository::class,
         ExpenseRepositoryInterface::class => EloquentExpenseRepository::class,
+        UserRepositoryInterface::class => EloquentUserRepository::class,
     ];
 
     public function register(): void

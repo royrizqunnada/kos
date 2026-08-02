@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Src\Expense\Domain\Models\Expense;
 use Src\Identity\Domain\Enums\UserRole;
 use Src\Identity\Domain\Models\User;
+use Src\Identity\Infrastructure\Policies\UserPolicy;
 use Src\Invoice\Domain\Models\Invoice;
 use Src\Lease\Domain\Models\Lease;
 use Src\Payment\Domain\Models\Payment;
@@ -27,6 +28,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::policy(Room::class, RoomPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Tenant::class, fn () => new ModulePolicy('tenant'));
         Gate::policy(Lease::class, fn () => new ModulePolicy('lease'));
         Gate::policy(Invoice::class, fn () => new ModulePolicy('invoice'));

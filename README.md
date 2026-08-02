@@ -60,6 +60,10 @@ Buka `http://localhost:8000`.
 | Pemilik     | owner@kos.test        | Lihat semua data + laporan     |
 | Admin       | admin@kos.test        | Operasional harian (tanpa setting) |
 
+> Permission modul `user.*` (manajemen user) hanya dimiliki Super Admin. Pada database
+> yang sudah berjalan, jalankan ulang seeder permission agar permission baru tersimpan:
+> `php artisan db:seed --class=Database\\Seeders\\RolePermissionSeeder --force`.
+
 ---
 
 ## Fitur
@@ -73,6 +77,8 @@ Buka `http://localhost:8000`.
 - **Reminder** — H-7, H-3, H-1, H+1, H+7 via WhatsApp & Email; template dapat diubah admin (idempoten via `reminder_logs`).
 - **Pengeluaran** — Listrik/Air/Internet/Perbaikan/Kebersihan/Lain-lain.
 - **Laporan** — pendapatan, pengeluaran, laba, piutang, kamar kosong, penghuni aktif + filter periode.
+- **Manajemen User** (`/users`, khusus Super Admin) — tambah akun login, ubah nama/email/nomor HP, atur peran, reset password tanpa perlu password lama, hapus user. Akun sendiri tidak bisa dihapus/diturunkan perannya dan minimal satu Super Admin selalu dipertahankan.
+- **Akun Saya** (`/settings`, semua user) — ubah nama, email login, nomor HP, dan ganti password sendiri (wajib mengisi password saat ini).
 
 ---
 
